@@ -1,2 +1,2 @@
 # traces
-Traces - NCSU CSC 495 Visual Interfaces for Mobile Devices Project
+Traces - NCSU CSC 495 Visual Interfaces for Mobile Devices Project!
