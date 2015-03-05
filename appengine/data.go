@@ -1,7 +1,7 @@
 package traces
 
 import (
-	"github.com/kellydunn/golang-geo"
+	"internal/github.com/kellydunn/golang-geo"
 )
 
 var googleGeo = geo.GoogleGeocoder{}

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"encoding/json"
 	"github.com/ChimeraCoder/anaconda"
-	"github.com/ant0ine/go-json-rest/rest"
+	"internal/github.com/ant0ine/go-json-rest/rest"
 	"io/ioutil"
 )
 
@@ -43,16 +43,16 @@ func init() {
 	anaconda.SetConsumerKey(twitterConfig.ConsumerKey)
 	anaconda.SetConsumerSecret(twitterConfig.ConsumerSecret)
 
-	handler := rest.ResourceHandler{
-		EnableRelaxedContentType: true, //TODO remove
-	}
-	err = handler.SetRoutes(
+	api := rest.NewApi()
+	api.Use(rest.DefaultDevStack...) //TODO change to DefaultProdStack or something similar
+	router, err := rest.MakeRouter(
 		&rest.Route{"GET", "/api/coordinate", apiCoordinateSearch},
 		&rest.Route{"GET", "/api/address", apiAddressSearch},
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	http.Handle("/", &handler)
+	api.SetApp(router)
+	http.Handle("/", api.MakeHandler())
 
 }

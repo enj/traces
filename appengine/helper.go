@@ -4,7 +4,7 @@ import (
 	"appengine"
 	"appengine/urlfetch"
 	"net/http"
-	"github.com/ant0ine/go-json-rest/rest"
+	"internal/github.com/ant0ine/go-json-rest/rest"
 )
 
 func appengineClient(r *rest.Request) *http.Client {

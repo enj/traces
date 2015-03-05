@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"sort"
 	"encoding/json"
-	"github.com/ant0ine/go-json-rest/rest"
-	"github.com/kellydunn/golang-geo"
+	"internal/github.com/ant0ine/go-json-rest/rest"
+	"internal/github.com/kellydunn/golang-geo"
 )
 
 func parseCoordinate(s, t *string, r float64) (f float64, err error) {

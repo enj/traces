@@ -2,7 +2,7 @@ package traces
 
 import (
 	"net/http"
-	"github.com/ant0ine/go-json-rest/rest"
+	"internal/github.com/ant0ine/go-json-rest/rest"
 )
 
 func apiAddressSearch(w rest.ResponseWriter, r *rest.Request) {
