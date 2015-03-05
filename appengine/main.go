@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"encoding/json"
-	"github.com/ChimeraCoder/anaconda"
+	"internal/github.com/enj/anaconda"
 	"internal/github.com/ant0ine/go-json-rest/rest"
 	"io/ioutil"
 )
@@ -13,10 +13,8 @@ var twitterAPI *anaconda.TwitterApi
 
 const (
 	twitterConfigFile = "config.json"
-	twitterRadius = 0.25 // twitter search radius (km)
+	twitterRadius = 0.25 // default twitter search radius (km)
 	twitterCountSearch = "100" // max results from twitter search API
-	twitterLat = 1 // index of latitude in twitter JSON
-	twitterLng = 0 // index of longitude in twitter JSON
 	maxLat = 90.0 // maximum valid latitude
 	maxLng = 180.0 // maximum valid longitude
 )

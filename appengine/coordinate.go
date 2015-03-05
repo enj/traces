@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 	"sort"
-	"encoding/json"
 	"internal/github.com/ant0ine/go-json-rest/rest"
 	"internal/github.com/kellydunn/golang-geo"
 )
@@ -51,27 +50,23 @@ func twitterSearchCoordinate(start *geo.Point, h *http.Client) (tweets, error) {
 
 	tweetList := tweets{}
 
-	c := geoJSON{}
 	for _, tweet := range data.Statuses {
 
-		tc := tweet.Coordinates
-		if tc == nil {
+		if !tweet.HasCoordinates() {
 			continue
 		}
 
-		s, err := json.Marshal(tc)
-		if err != nil {
-			continue
-		}
-		json.Unmarshal(s, &c) //TODO remove with new API
-		stop := geo.NewPoint(c.Coordinates[twitterLat], c.Coordinates[twitterLng])
+		lat, _ := tweet.Latitude()
+		lng, _ := tweet.Longitude()
+
+		stop := geo.NewPoint(lat, lng)
 
 		u := tweet.User
 		tweetList = append(tweetList, twitterIntel{
 			u.Name,
 			u.ScreenName,
 			u.ProfileImageUrlHttps,
-			// stop,
+			stop,
 			start.GreatCircleDistance(stop),
 		})
 	}
