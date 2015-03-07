@@ -31,7 +31,7 @@ type twitterIntel struct {
 type tweets []twitterIntel
 
 type addressIntel struct {
-	Location    *geo.Point      `json:"location"`
+	Location    *geo.Point      `json:"search_location"`
 	Intel       tweets          `json:"intel"`
 }
 

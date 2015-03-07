@@ -20,6 +20,7 @@ const (
 	twitterDate = "2006-01-02" // ISO format
 	maxLat = 90.0 // maximum valid latitude
 	maxLng = 180.0 // maximum valid longitude
+	kmToMi = 0.621371 // convert kilometers to miles
 )
 
 func init() {

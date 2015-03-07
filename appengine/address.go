@@ -23,7 +23,7 @@ func apiAddressSearch(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	t, err := commonAPIValidation(&w, &q, h, p)
+	t, err := commonAPIValidation(&q, h, p)
 	if err != nil {
 		rest.Error(w, err.Error(), http.StatusBadRequest)
 		return

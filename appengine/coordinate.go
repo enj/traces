@@ -68,7 +68,7 @@ func twitterSearchCoordinate(start *geo.Point, h *http.Client, radius float64, s
 				u.ScreenName,
 				u.URL,
 			},
-			start.GreatCircleDistance(stop),
+			start.GreatCircleDistance(stop) * kmToMi, // km to mi
 		})
 	}
 
@@ -108,7 +108,7 @@ func apiCoordinateSearch(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	t, err := commonAPIValidation(&w, &q, appengineClient(r), geo.NewPoint(lat, lng))
+	t, err := commonAPIValidation(&q, appengineClient(r), geo.NewPoint(lat, lng))
 	if err != nil {
 		rest.Error(w, err.Error(), http.StatusBadRequest)
 		return

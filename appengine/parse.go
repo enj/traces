@@ -63,9 +63,18 @@ func validateDate(date *string) (*time.Time, error) {
 	if *date != "" {
 		out, err := time.Parse(twitterDate, *date)
 		if err != nil {
-			return nil, err
+			return nil, err //TODO better error message
 		}
 		d = &out
 	}
 	return d, nil // TODO maybe control date's range to -2 weeks to +2 days from today
+} // Probably better to modify date range below to handle this using time.Time values
+
+func validateDateRange(since, until *string) error {
+	if *since != "" && *until != "" {
+		if *since >= *until {
+			return errors.New("'Until' date must be later than 'since' date.")
+		}
+	}
+	return nil
 }
