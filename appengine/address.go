@@ -23,9 +23,9 @@ func apiAddressSearch(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	t, errAPI := twitterSearchCoordinate(p, h)
-	if errAPI != nil {
-		rest.Error(w, errAPI.Error(), http.StatusBadRequest)
+	t, err := commonAPIValidation(&w, &q, h, p)
+	if err != nil {
+		rest.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

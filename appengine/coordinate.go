@@ -5,45 +5,34 @@ import (
 	"errors"
 	"net/url"
 	"net/http"
-	"strconv"
 	"sort"
+	"time"
 	"internal/github.com/ant0ine/go-json-rest/rest"
 	"internal/github.com/kellydunn/golang-geo"
 )
 
-func parseCoordinate(s, t *string, r float64) (f float64, err error) {
-	f, err = strconv.ParseFloat(*s, 64)
-	if err != nil {
-		err = errors.New(fmt.Sprintf("Invalid %s.", *t))
-		return
-	}
-
-	if f >= -r && f <= r {
-		return
-	}
-
-	err = errors.New(fmt.Sprintf("Invalid range, %s must be ±%.0f°.", *t, r))
-	return
-}
-
-func parseLat(s *string) (float64, error) {
-	l := "latitude"
-	return parseCoordinate(s, &l, maxLat)
-}
-
-func parseLng(s *string) (float64, error) {
-	l := "longitude"
-	return parseCoordinate(s, &l, maxLng)
-}
-
-func twitterSearchCoordinate(start *geo.Point, h *http.Client) (tweets, error) {
+// All input must be validated before using this function
+func twitterSearchCoordinate(start *geo.Point, h *http.Client, radius float64, since, until *time.Time) (tweets, error) {
 
 	v := url.Values{}
 	v.Set("count", twitterCountSearch)
-	v.Set("geocode", fmt.Sprintf("%f,%f,%fkm", start.Lat(), start.Lng(), twitterRadius))
+	v.Set("result_type", "recent") // TODO determine best
+	v.Set("include_entities", "false")
+	v.Set("geocode", fmt.Sprintf("%f,%f,%fmi", start.Lat(), start.Lng(), radius))
+
+	var query string
+	if since != nil && until != nil {
+		query = fmt.Sprintf("since:%s until:%s", since.Format(twitterDate), until.Format(twitterDate))
+	} else if since != nil {
+		query = fmt.Sprintf("since:%s", since.Format(twitterDate))
+	} else if until != nil {
+		query = fmt.Sprintf("until:%s", until.Format(twitterDate))
+	} else {
+		query = ""
+	}
 
 	twitterAPI.HttpClient = h
-	data, err := twitterAPI.GetSearch("", v)
+	data, err := twitterAPI.GetSearch(query, v)
 	if err != nil {
 		return nil, err // TODO for production: errors.New("Twitter API error.")
 	}
@@ -63,10 +52,22 @@ func twitterSearchCoordinate(start *geo.Point, h *http.Client) (tweets, error) {
 
 		u := tweet.User
 		tweetList = append(tweetList, twitterIntel{
-			u.Name,
-			u.ScreenName,
-			u.ProfileImageUrlHttps,
 			stop,
+			tweet.CreatedAt,
+			tweet.FavoriteCount,
+			tweet.Id,
+			tweet.PossiblySensitive,
+			tweet.RetweetCount,
+			tweet.Text,
+			&twitterUser{
+				u.Description,
+				u.Id,
+				u.Location,
+				u.Name,
+				u.ProfileImageUrlHttps,
+				u.ScreenName,
+				u.URL,
+			},
 			start.GreatCircleDistance(stop),
 		})
 	}
@@ -75,7 +76,7 @@ func twitterSearchCoordinate(start *geo.Point, h *http.Client) (tweets, error) {
 		return nil, errors.New("No results found.")
 	}
 
-	sort.Sort(tweetList)
+	sort.Sort(sort.Reverse(tweetList))
 	return tweetList, nil
 }
 
@@ -83,34 +84,33 @@ func apiCoordinateSearch(w rest.ResponseWriter, r *rest.Request) {
 
 	q := r.URL.Query()
 
-	slat := q.Get("lat")
-	if slat == "" {
+	sLat := q.Get("lat")
+	if sLat == "" {
 		rest.Error(w, "Latitude required.", http.StatusBadRequest)
 		return
 	}
 
-	slng := q.Get("lng")
-	if slng == "" {
+	sLng := q.Get("lng")
+	if sLng == "" {
 		rest.Error(w, "Longitude required.", http.StatusBadRequest)
 		return
 	}
 
-	lat, errLatFormat := parseLat(&slat)
+	lat, errLatFormat := parseLat(&sLat)
 	if errLatFormat != nil {
 		rest.Error(w, errLatFormat.Error(), http.StatusBadRequest)
 		return
 	}
 
-	lng, errLngFormat := parseLng(&slng)
+	lng, errLngFormat := parseLng(&sLng)
 	if errLngFormat != nil {
 		rest.Error(w, errLngFormat.Error(), http.StatusBadRequest)
 		return
 	}
 
-	h := appengineClient(r)
-	t, errAPI := twitterSearchCoordinate(geo.NewPoint(lat, lng), h)
-	if errAPI != nil {
-		rest.Error(w, errAPI.Error(), http.StatusBadRequest)
+	t, err := commonAPIValidation(&w, &q, appengineClient(r), geo.NewPoint(lat, lng))
+	if err != nil {
+		rest.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

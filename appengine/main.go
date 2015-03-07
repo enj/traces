@@ -13,8 +13,11 @@ var twitterAPI *anaconda.TwitterApi
 
 const (
 	twitterConfigFile = "config.json"
-	twitterRadius = 0.25 // default twitter search radius (km)
+	minTwitterRadius = 0.10 // minimum twitter search radius (mi)
+	defTwitterRadius = 1.00 // default twitter search radius (mi)
+	maxTwitterRadius = 10.00 // maximum twitter search radius (mi)
 	twitterCountSearch = "100" // max results from twitter search API
+	twitterDate = "2006-01-02" // ISO format
 	maxLat = 90.0 // maximum valid latitude
 	maxLng = 180.0 // maximum valid longitude
 )
@@ -37,6 +40,7 @@ func init() {
 		log.Fatal(err)
 	}
 
+	// TODO determine if we want to use User vs App auth for rate limiting purposes
 	twitterAPI = anaconda.NewTwitterApi(twitterConfig.AccessToken, twitterConfig.AccessTokenSecret)
 	anaconda.SetConsumerKey(twitterConfig.ConsumerKey)
 	anaconda.SetConsumerSecret(twitterConfig.ConsumerSecret)
@@ -54,3 +58,8 @@ func init() {
 	http.Handle("/", api.MakeHandler())
 
 }
+
+//TODO search sentiment
+// https://dev.twitter.com/rest/public/search
+// https://twitter.com/search-home
+// https://dev.twitter.com/rest/reference/get/search/tweets
