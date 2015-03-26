@@ -20,7 +20,7 @@ func twitterSearchCoordinate(start *geo.Point, h *http.Client, radius float64, s
 	v.Set("include_entities", "false")
 	v.Set("geocode", fmt.Sprintf("%f,%f,%fmi", start.Lat(), start.Lng(), radius))
 
-	var query string
+	var query string // TODO break this out into a query builder function
 	if since != nil && until != nil {
 		query = fmt.Sprintf("since:%s until:%s", since.Format(twitterDate), until.Format(twitterDate))
 	} else if since != nil {
