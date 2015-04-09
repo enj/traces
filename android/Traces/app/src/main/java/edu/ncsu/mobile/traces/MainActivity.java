@@ -7,7 +7,10 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import com.goebl.david.Response;
 import com.goebl.david.Webb;
+import com.goebl.david.WebbException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,31 +19,101 @@ import org.json.JSONObject;
 
 public class MainActivity extends ActionBarActivity {
 
+    private abstract class BaseAPIQuery {
+
+        protected static final String base = "https://stalkhere.appspot.com/api/";
+        protected String full;
+        protected String since;
+        protected String until;
+        protected String rad; // determine how to get default values from DB so user can have preference
+
+        protected void setCommonParam(String radius, String since, String until) {
+            rad = radius;
+            this.since = since;
+            this.until = until;
+        }
+    }
+
+    private class AddressAPIQuery extends BaseAPIQuery {
+
+        protected String s;
+
+        public AddressAPIQuery(String street, String radius, String since, String until) {
+            full = base + "address";
+            s = street;
+            setCommonParam(radius, since, until);
+        }
+    }
+
+    // Determine if we need this at all
+    // Write associated async task if we decide to keep it
+    // Need to update API do return exact same data structure before write async task
+    private class CoordinateAPUQuery extends BaseAPIQuery {
+        
+        protected String lat;
+        protected String lng;
+        
+        public CoordinateAPUQuery(String latitude, String longitude, String radius, String since, String until) {
+            full = base + "coordinate";
+            lat = latitude;
+            lng = longitude;
+            setCommonParam(radius, since, until);
+        }
+    }
+
     Webb r = Webb.create();
-    String base = "https://stalkhere.appspot.com/api/address";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        new jsonGet().execute(base);
+        // only street is required, the rest can be set to null or empty string
+        new addressGet().execute(new AddressAPIQuery("ncsu", "3", "", null));
     }
 
-    private class jsonGet extends AsyncTask<String, Void, JSONObject> {
+    private class addressGet extends AsyncTask<AddressAPIQuery, Void, JSONObject> {
 
-        protected JSONObject doInBackground(String... urls) {
+        protected JSONObject doInBackground(AddressAPIQuery... query) {
+            
+            AddressAPIQuery q = query[0];
+            Response<JSONObject> d;
 
-            JSONObject result = r
-                    .get(urls[0])
-                    .param("s", "ncsu")
-                    .ensureSuccess()
-                    .asJsonObject()
-                    .getBody();
+            try {
+                d = r.get(q.full)
+                     .param("s", q.s)
+                     .param("rad", q.rad)
+                     .param("since", q.since)
+                     .param("until", q.until)
+                     .asJsonObject();
+            } catch (WebbException e) {
+                return null;
+            }
 
-            return result;
+            if (d.isSuccess()) {
+                return d.getBody();
+            } else {
+                try {
+                    return (JSONObject) d.getErrorBody();
+                } catch (ClassCastException e) {
+                    return null;
+                }
+            }
+
         }
 
         protected void onPostExecute(JSONObject result) {
+
+            if (result == null) {
+                updateText("Network Error");
+                return;
+            }
+
+            try {
+                updateText(result.getString("Error"));
+                return;
+            } catch (JSONException e) {
+                //no JSON error so keep going
+            }
 
             try {
 
@@ -54,13 +127,18 @@ public class MainActivity extends ActionBarActivity {
                     String text = tweet.optString("text") + "\n\n";
                     output += name + text;
                 }
-                TextView jsonParsed = (TextView) findViewById(R.id.jsonParsed);
-                jsonParsed.setMovementMethod(new ScrollingMovementMethod());
-                jsonParsed.setText(output);
+                updateText(output);
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                updateText(e.getMessage());
             }
+
+        }
+
+        protected void updateText(String output) {
+            TextView jsonParsed = (TextView) findViewById(R.id.jsonParsed);
+            jsonParsed.setMovementMethod(new ScrollingMovementMethod());
+            jsonParsed.setText(output);
         }
     }
 
