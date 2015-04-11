@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Traces</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="rl">rl</string>
+    <string name="title_activity_maps">Tweet Map</string>
+
+    <string name="TAG_LATITUDE">lat</string>
+    <string name="TAG_LONGITUDE">lng</string>
+    <string name="TAG_USER">user</string>
+    <string name="TAG_TWEETDESCRIPTION">description</string>
+    <string name="TAG_SCREENNAME">screen_name</string>
+    <string name="TAG_PROFILEIMAGEURL">profile_image_url_https</string>
+    <string name="TAG_PROFILELOCATION">profile_location</string>
+</resources>
