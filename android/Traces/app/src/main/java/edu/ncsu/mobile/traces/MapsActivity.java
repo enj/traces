@@ -230,7 +230,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
             runOnUiThread(new Runnable() {
                 public void run() {
                     try {
-
                         Bitmap bmImg = Ion.with(getApplicationContext())
                                 .load(profileImageUrl).asBitmap().get();
 
@@ -245,11 +244,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
                     }
                 }
             });
-
-
         }
-
-
     }
-
 }
