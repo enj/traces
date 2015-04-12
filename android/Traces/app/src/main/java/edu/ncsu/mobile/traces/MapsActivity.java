@@ -2,6 +2,10 @@ package edu.ncsu.mobile.traces;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,24 +15,25 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.koushikdutta.ion.Ion;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static android.app.ProgressDialog.show;
 
-public class MapsActivity extends FragmentActivity {
+public class MapsActivity extends FragmentActivity implements LocationListener {
 
     private SearchView search;
     private RelativeLayout rel_layout;
     private static final String LOG_APPTAG = "Traces App";
+    Location myLocation = null;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
     @Override
@@ -70,8 +75,13 @@ public class MapsActivity extends FragmentActivity {
             public boolean onQueryTextSubmit(String query) {
                 // TODO Auto-generated method stub
 
-                Toast.makeText(getBaseContext(), query,
-                        Toast.LENGTH_SHORT).show();
+                if(query.trim().isEmpty()){
+                    Toast.makeText(getBaseContext(), "Enter Location",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    retrieveTweetLocationsAndPlot();
+                }
                 return false;
             }
 
@@ -84,7 +94,25 @@ public class MapsActivity extends FragmentActivity {
                 return false;
             }
         });
+    }
 
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
 
     }
 
@@ -130,26 +158,53 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMap() {
 
+        centerMapToCurrentLocation();
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    retrieveTweetLocationsAndPlot();
+                    plotTweetsByDefaultLocation(myLocation);
                 } catch (Exception e) {
                     Log.e(LOG_APPTAG, "Cannot retrieve geo locations", e);
                     return;
                 }
             }
         }).start();
+
+
     }
 
+    private void centerMapToCurrentLocation() {
+        //Zoom to current Location
+        mMap.setMyLocationEnabled(true);
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String bestProvider = locationManager.getBestProvider(criteria, true);
+        myLocation = locationManager.getLastKnownLocation(bestProvider);
+        if (myLocation != null) {
+            onLocationChanged(myLocation);
+            locationManager.requestLocationUpdates(bestProvider, 20000, 0, this);
+
+            double latitude = myLocation.getLatitude();
+            double longitude = myLocation.getLongitude();
+            LatLng latLng = new LatLng(latitude, longitude);
+            mMap.addMarker(new MarkerOptions().position(latLng));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+        }
+    }
+
+    private void plotTweetsByDefaultLocation(Location myLocation) {
+        //JSON Data for default location of user based on lat-lng[myLocation.getLatitude/Longitude()]
+        JSONArray tweetsData = null;
+    }
 
     private void retrieveTweetLocationsAndPlot() {
         String location = search.getQuery().toString().trim(); // temp search field placed North for testing.
 
-        // Get JSON Data based on search field values -> (location,5,"",null)
+        // Get JSON Data based on search field values or use default -> ("ncsu",5,"",null)
 
         JSONArray tweetsData = null;
-        int tweetDataLength=0; //temp variable :will be replaced by -> tweetsData.length()
+        int tweetDataLength = 0; //temp variable :will be replaced by -> tweetsData.length()
 
         for (int i = 0; i < tweetDataLength; i++) {
             JSONObject tweet = null;
@@ -161,12 +216,12 @@ public class MapsActivity extends FragmentActivity {
                 e.printStackTrace();
             }
 
-           final String userName = user.optString("name");
+            final String userName = user.optString("name");
             final String profileImageUrl = user.optString("profile_image_url_https");
-           final String tweetText = tweet.optString("text");
-           final String profileLocation = tweet.optString("profile_location");
+            final String tweetText = tweet.optString("text");
+            final String profileLocation = tweet.optString("profile_location");
 
-           final LatLng userPos = new LatLng(
+            final LatLng userPos = new LatLng(
                     Double.parseDouble(tweet.optString("lat")),
                     Double.parseDouble(tweet.optString("lng")));
                  /* Create markers for the tweet data.
@@ -196,6 +251,5 @@ public class MapsActivity extends FragmentActivity {
 
 
     }
-
 
 }
