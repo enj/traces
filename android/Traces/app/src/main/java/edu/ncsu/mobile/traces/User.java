@@ -1,19 +1,30 @@
 
 package edu.ncsu.mobile.traces;
 
-import java.util.HashMap;
-import java.util.Map;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 
 public class User {
 
+    @Expose
     private String description;
+    @Expose
     private Long id;
+    @SerializedName("profile_location")
+    @Expose
     private String profileLocation;
+    @Expose
     private String name;
+    @SerializedName("profile_image_url_https")
+    @Expose
     private String profileImageUrlHttps;
+    @SerializedName("screen_name")
+    @Expose
     private String screenName;
+    @Expose
     private String url;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
      * 
@@ -139,14 +150,6 @@ public class User {
      */
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
-
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
     }
 
 }

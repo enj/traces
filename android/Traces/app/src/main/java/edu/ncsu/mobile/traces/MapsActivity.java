@@ -6,7 +6,6 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -199,24 +198,30 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         JSONArray tweetsData = null;
     }
 
+    AddressAPIQuery addressQuery = new AddressAPIQuery(null, null, null, null);
+
     private void retrieveTweetLocationsAndPlot() {
-        String location = search.getQuery().toString().trim(); // temp search field placed North for testing.
 
         // only street is required, the rest can be set to null or empty string
-        AddressAPIQuery q = new AddressAPIQuery(location, null, null, null);
+        addressQuery.s = search.getQuery().toString().trim();
+        addressQuery.rad = null;
+        addressQuery.since = null;
+        addressQuery.until = null;
         TracesAPI result;
 
         try {
-            AsyncTask<AddressAPIQuery, Void, TracesAPI> run = new AddressGet().execute(q);
-            result = run.get();
+            result = new AddressGet().execute(addressQuery).get();
         } catch (WebbException we) {
-            // Network error
+            // Network error -> Figure out how to tell UI
+            Log.e(LOG_APPTAG, "Network Error", we);
             return;
         } catch (RuntimeException re) {
-            //API error
+            //API error -> Also figure out what to tell UI here -> need Error class
+            Log.e(LOG_APPTAG, "API Error", re);
             return;
         } catch (InterruptedException|ExecutionException meh) {
-            // Eh?
+            // Eh? -> no idea
+            Log.e(LOG_APPTAG, "Thread killed", meh);
             return;
         }
 
@@ -239,11 +244,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
             runOnUiThread(new Runnable() {
                 public void run() {
                     try {
-//                        Bitmap bmImg = Ion.with(getApplicationContext())
-//                                .load(profileImageUrl).asBitmap().get();
+                        Bitmap bmImg = Ion.with(getApplicationContext())
+                                .load(profileImageUrl).asBitmap().get();
 
                         mMap.addMarker(new MarkerOptions()
-//                                .icon(BitmapDescriptorFactory.fromBitmap(bmImg))
+                                .icon(BitmapDescriptorFactory.fromBitmap(bmImg))
                                 .title(userName)
                                 .snippet(tweetText)
                                 .position(userPos));

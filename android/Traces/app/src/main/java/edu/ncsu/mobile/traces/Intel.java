@@ -1,21 +1,35 @@
 
 package edu.ncsu.mobile.traces;
 
-import java.util.HashMap;
-import java.util.Map;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 
 public class Intel {
 
+    @Expose
     private Location location;
+    @SerializedName("created_at")
+    @Expose
     private String createdAt;
+    @SerializedName("favorite_count")
+    @Expose
     private Long favoriteCount;
+    @Expose
     private Long id;
+    @SerializedName("possibly_sensitive")
+    @Expose
     private Boolean possiblySensitive;
+    @SerializedName("retweet_count")
+    @Expose
     private Long retweetCount;
+    @Expose
     private String text;
+    @Expose
     private User user;
+    @Expose
     private Double distance;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
      * 
@@ -177,14 +191,6 @@ public class Intel {
      */
     public void setDistance(Double distance) {
         this.distance = distance;
-    }
-
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
-
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
     }
 
 }

@@ -2,15 +2,19 @@
 package edu.ncsu.mobile.traces;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 
 public class TracesAPI {
 
+    @SerializedName("search_location")
+    @Expose
     private SearchLocation searchLocation;
+    @Expose
     private List<Intel> intel = new ArrayList<Intel>();
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
      * 
@@ -46,14 +50,6 @@ public class TracesAPI {
      */
     public void setIntel(List<Intel> intel) {
         this.intel = intel;
-    }
-
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
-
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
     }
 
 }
