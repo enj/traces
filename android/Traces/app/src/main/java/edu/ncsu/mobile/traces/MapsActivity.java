@@ -6,6 +6,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.goebl.david.WebbException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -24,8 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.koushikdutta.ion.Ion;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.concurrent.ExecutionException;
 
 
 public class MapsActivity extends FragmentActivity implements LocationListener {
@@ -201,42 +202,50 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
     private void retrieveTweetLocationsAndPlot() {
         String location = search.getQuery().toString().trim(); // temp search field placed North for testing.
 
-        // Get JSON Data based on search field values or use default -> ("ncsu",5,"",null)
+        // only street is required, the rest can be set to null or empty string
+        AddressAPIQuery q = new AddressAPIQuery(location, null, null, null);
+        TracesAPI result;
 
-        JSONArray tweetsData = null;
-        int tweetDataLength = 0; //temp variable :will be replaced by -> tweetsData.length()
+        try {
+            AsyncTask<AddressAPIQuery, Void, TracesAPI> run = new AddressGet().execute(q);
+            result = run.get();
+        } catch (WebbException we) {
+            // Network error
+            return;
+        } catch (RuntimeException re) {
+            //API error
+            return;
+        } catch (InterruptedException|ExecutionException meh) {
+            // Eh?
+            return;
+        }
 
-        for (int i = 0; i < tweetDataLength; i++) {
-            JSONObject tweet = null;
-            JSONObject user = null;
-            try {
-                tweet = tweetsData.getJSONObject(i);
-                user = tweet.getJSONObject("user");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        for (Intel tweet : result.getIntel()) {
+            User user = tweet.getUser();
 
-            final String userName = user.optString("name");
-            final String profileImageUrl = user.optString("profile_image_url_https");
-            final String tweetText = tweet.optString("text");
-            final String profileLocation = tweet.optString("profile_location");
+            final String userName = user.getName();
+            final String profileImageUrl = user.getProfileImageUrlHttps();
+            final String tweetText = tweet.getText();
+            //final String profileLocation = user.getProfileLocation();
+            final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
 
             final LatLng userPos = new LatLng(
-                    Double.parseDouble(tweet.optString("lat")),
-                    Double.parseDouble(tweet.optString("lng")));
+                    loc.getLat(),
+                    loc.getLng()
+            );
                  /* Create markers for the tweet data.
                     Must run this on the UI thread since it's a UI operation.
                  */
             runOnUiThread(new Runnable() {
                 public void run() {
                     try {
-                        Bitmap bmImg = Ion.with(getApplicationContext())
-                                .load(profileImageUrl).asBitmap().get();
+//                        Bitmap bmImg = Ion.with(getApplicationContext())
+//                                .load(profileImageUrl).asBitmap().get();
 
                         mMap.addMarker(new MarkerOptions()
-                                .icon(BitmapDescriptorFactory.fromBitmap(bmImg))
+//                                .icon(BitmapDescriptorFactory.fromBitmap(bmImg))
                                 .title(userName)
-                                .snippet(profileLocation)
+                                .snippet(tweetText)
                                 .position(userPos));
 
                     } catch (Exception e) {
