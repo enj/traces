@@ -205,10 +205,16 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         addressQuery.rad = null;
         addressQuery.since = null;
         addressQuery.until = null;
-        plotTweetsOnMap(addressQuery);
+        plotTweetsOnMap(new AddressGet(), addressQuery);
+
+        // We will remove the street stuff and use this instead
+        // coordinateAPIQuery.lat = "XXX";
+        // coordinateAPIQuery.lng = "XXX";
+        // plotTweetsOnMap(new CoordinateGet(), coordinateAPIQuery);
     }
 
     AddressAPIQuery addressQuery = new AddressAPIQuery(null, null, null, null);
+    //CoordinateAPIQuery coordinateAPIQuery = new CoordinateAPIQuery(null, null, null, null, null);
 
     private void retrieveTweetLocationsAndPlot() {
         // only street is required, the rest can be set to null or empty string
@@ -216,7 +222,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         addressQuery.rad = null;
         addressQuery.since = null;
         addressQuery.until = null;
-        plotTweetsOnMap(addressQuery);
+        plotTweetsOnMap(new AddressGet(), addressQuery);
     }
 
     private void zoomToNewLocation(String newLocation) {
@@ -247,10 +253,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         }
     }
 
-    private void plotTweetsOnMap(AddressAPIQuery addressQuery) {
+    private void plotTweetsOnMap(BaseGet queryGet, BaseAPIQuery queryData) {
         TracesAPI result;
         try {
-            result = new AddressGet().execute(addressQuery).get();
+            result = queryGet.execute(queryData).get();
         } catch (WebbException we) {
             // Network error -> Figure out how to tell UI
             Log.e(LOG_APPTAG, "Network Error", we);
