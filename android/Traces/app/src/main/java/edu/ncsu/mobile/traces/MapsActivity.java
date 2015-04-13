@@ -202,19 +202,17 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
     private void plotTweetsByDefaultLocation(Location myLocation) {
         //JSON Data for default location of user based on lat-lng[myLocation.getLatitude/Longitude()]
         addressQuery.s = "ncsu";
-        addressQuery.rad = null;
-        addressQuery.since = null;
-        addressQuery.until = null;
+        coordinateAPIQuery.rad = null;
+        coordinateAPIQuery.since = null;
+        coordinateAPIQuery.until = null;
+        coordinateAPIQuery.lat = myLocation.getLatitude()+"";
+        coordinateAPIQuery.lng = myLocation.getLongitude()+"";
+//        plotTweetsOnMap(new CoordinateGet(), coordinateAPIQuery);
         plotTweetsOnMap(new AddressGet(), addressQuery);
-
-        // We will remove the street stuff and use this instead
-        // coordinateAPIQuery.lat = "XXX";
-        // coordinateAPIQuery.lng = "XXX";
-        // plotTweetsOnMap(new CoordinateGet(), coordinateAPIQuery);
     }
 
     AddressAPIQuery addressQuery = new AddressAPIQuery(null, null, null, null);
-    //CoordinateAPIQuery coordinateAPIQuery = new CoordinateAPIQuery(null, null, null, null, null);
+    CoordinateAPIQuery coordinateAPIQuery = new CoordinateAPIQuery(null, null, null, null, null);
 
     private void retrieveTweetLocationsAndPlot() {
         // only street is required, the rest can be set to null or empty string
@@ -231,7 +229,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         Step 2: Zoom to LatLng Co-ordinates on Map
          */
 
-        List<LatLng> lat1ngPositionList = null;
+/*  Geocoder code not needed
+      List<LatLng> lat1ngPositionList = null;
         if(Geocoder.isPresent()){
             try {
                 Geocoder gc = new Geocoder(this);
@@ -246,11 +245,15 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
                 e.printStackTrace();
             }
         }
-
         if(!lat1ngPositionList.isEmpty()){
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(lat1ngPositionList.get(0)));
+              }
+*/
+
+        if(coordinateAPIQuery.lat != null && coordinateAPIQuery.lng != null){
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(Double.parseDouble(coordinateAPIQuery.lat),Double.parseDouble(coordinateAPIQuery.lng))));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
         }
+
     }
 
     private void plotTweetsOnMap(BaseGet queryGet, BaseAPIQuery queryData) {
@@ -270,7 +273,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
             Log.e(LOG_APPTAG, "Thread killed", meh);
             return;
         }
-
+       coordinateAPIQuery.lat= result.getSearchLocation().getLat()+"";
+       coordinateAPIQuery.lng= result.getSearchLocation().getLng()+"";
         for (Intel tweet : result.getIntel()) {
             User user = tweet.getUser();
             final String userName = user.getName();
