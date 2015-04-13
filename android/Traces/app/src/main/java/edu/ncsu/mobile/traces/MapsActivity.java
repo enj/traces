@@ -1,7 +1,12 @@
 package edu.ncsu.mobile.traces;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -23,8 +28,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.koushikdutta.ion.Ion;
-
-import org.json.JSONArray;
 import java.util.concurrent.ExecutionException;
 
 
@@ -157,7 +160,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-
         centerMapToCurrentLocation();
         new Thread(new Runnable() {
             public void run() {
@@ -169,8 +171,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
                 }
             }
         }).start();
-
-
     }
 
     private void centerMapToCurrentLocation() {
@@ -183,7 +183,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         if (myLocation != null) {
             onLocationChanged(myLocation);
             locationManager.requestLocationUpdates(bestProvider, 20000, 0, this);
-
             double latitude = myLocation.getLatitude();
             double longitude = myLocation.getLongitude();
             LatLng latLng = new LatLng(latitude, longitude);
@@ -195,20 +194,27 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
 
     private void plotTweetsByDefaultLocation(Location myLocation) {
         //JSON Data for default location of user based on lat-lng[myLocation.getLatitude/Longitude()]
-        JSONArray tweetsData = null;
+        addressQuery.s = "ncsu";
+        addressQuery.rad = null;
+        addressQuery.since = null;
+        addressQuery.until = null;
+        plotTweetsOnMap(addressQuery);
     }
 
     AddressAPIQuery addressQuery = new AddressAPIQuery(null, null, null, null);
 
     private void retrieveTweetLocationsAndPlot() {
-
         // only street is required, the rest can be set to null or empty string
         addressQuery.s = search.getQuery().toString().trim();
         addressQuery.rad = null;
         addressQuery.since = null;
         addressQuery.until = null;
-        TracesAPI result;
+        plotTweetsOnMap(addressQuery);
+//        zoomToNewLocation();
+    }
 
+    private void plotTweetsOnMap(AddressAPIQuery addressQuery) {
+        TracesAPI result;
         try {
             result = new AddressGet().execute(addressQuery).get();
         } catch (WebbException we) {
@@ -227,7 +233,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
 
         for (Intel tweet : result.getIntel()) {
             User user = tweet.getUser();
-
             final String userName = user.getName();
             final String profileImageUrl = user.getProfileImageUrlHttps();
             final String tweetText = tweet.getText();
@@ -246,18 +251,42 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
                     try {
                         Bitmap bmImg = Ion.with(getApplicationContext())
                                 .load(profileImageUrl).asBitmap().get();
-
+                        Bitmap mapMarkerImg = getCircleCroppedBitmap(bmImg);
                         mMap.addMarker(new MarkerOptions()
-                                .icon(BitmapDescriptorFactory.fromBitmap(bmImg))
+                                .icon(BitmapDescriptorFactory.fromBitmap(mapMarkerImg))
                                 .title(userName)
                                 .snippet(tweetText)
                                 .position(userPos));
-
                     } catch (Exception e) {
                         Log.e(LOG_APPTAG, "Error processing JSON", e);
                     }
                 }
             });
         }
+    }
+
+    private Bitmap getCircleCroppedBitmap(Bitmap bitmap) {
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+//      canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
+                bitmap.getWidth() / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+
+     //return output;
+
+        /* Yay!! Lets re-scale the profile image to decent size & return */
+        Bitmap scaledBitmapOutput = Bitmap.createScaledBitmap(output, 100, 100, false);
+        return scaledBitmapOutput;
     }
 }
