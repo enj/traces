@@ -7,7 +7,9 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -28,6 +30,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.koushikdutta.ion.Ion;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
@@ -84,6 +90,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
                 }
                 else{
                     retrieveTweetLocationsAndPlot();
+                    zoomToNewLocation(addressQuery.s);
                 }
                 return false;
             }
@@ -210,7 +217,34 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         addressQuery.since = null;
         addressQuery.until = null;
         plotTweetsOnMap(addressQuery);
-//        zoomToNewLocation();
+    }
+
+    private void zoomToNewLocation(String newLocation) {
+        /*
+        Step 1: Fetch Lat-Lng by Address value
+        Step 2: Zoom to LatLng Co-ordinates on Map
+         */
+
+        List<LatLng> lat1ngPositionList = null;
+        if(Geocoder.isPresent()){
+            try {
+                Geocoder gc = new Geocoder(this);
+                List<Address> addresses= gc.getFromLocationName(newLocation, 5); // get the found Address Objects
+                lat1ngPositionList = new ArrayList<LatLng>(addresses.size()); // A list to save the coordinates if they are available
+                for(Address a : addresses){
+                    if(a.hasLatitude() && a.hasLongitude()){
+                        lat1ngPositionList.add(new LatLng(a.getLatitude(), a.getLongitude()));
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(!lat1ngPositionList.isEmpty()){
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(lat1ngPositionList.get(0)));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+        }
     }
 
     private void plotTweetsOnMap(AddressAPIQuery addressQuery) {
