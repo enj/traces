@@ -29,5 +29,5 @@ func apiAddressSearch(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	w.WriteJson(addressIntel{p, t})
+	w.WriteJson(apiIntel{p, t})
 }

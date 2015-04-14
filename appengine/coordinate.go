@@ -108,11 +108,12 @@ func apiCoordinateSearch(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	t, err := commonAPIValidation(&q, appengineClient(r), geo.NewPoint(lat, lng))
+	p := geo.NewPoint(lat, lng)
+	t, err := commonAPIValidation(&q, appengineClient(r), p)
 	if err != nil {
 		rest.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	w.WriteJson(t)
+	w.WriteJson(apiIntel{p, t})
 }
