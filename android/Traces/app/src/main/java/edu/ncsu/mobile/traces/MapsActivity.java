@@ -7,9 +7,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.location.Address;
 import android.location.Criteria;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -31,9 +29,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.koushikdutta.ion.Ion;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
@@ -90,7 +85,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
                 }
                 else{
                     retrieveTweetLocationsAndPlot();
-                    zoomToNewLocation(addressQuery.s);
                 }
                 return false;
             }
@@ -194,21 +188,18 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
             double longitude = myLocation.getLongitude();
             LatLng latLng = new LatLng(latitude, longitude);
             mMap.addMarker(new MarkerOptions().position(latLng));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+            zoomToNewLocation(latLng);
         }
     }
 
     private void plotTweetsByDefaultLocation(Location myLocation) {
         //JSON Data for default location of user based on lat-lng[myLocation.getLatitude/Longitude()]
-        addressQuery.s = "ncsu";
+        coordinateAPIQuery.lat = myLocation.getLatitude()+"";
+        coordinateAPIQuery.lng = myLocation.getLongitude()+"";
         coordinateAPIQuery.rad = null;
         coordinateAPIQuery.since = null;
         coordinateAPIQuery.until = null;
-        coordinateAPIQuery.lat = myLocation.getLatitude()+"";
-        coordinateAPIQuery.lng = myLocation.getLongitude()+"";
-//        plotTweetsOnMap(new CoordinateGet(), coordinateAPIQuery);
-        plotTweetsOnMap(new AddressGet(), addressQuery);
+        plotTweetsOnMap(new CoordinateGet(), coordinateAPIQuery);
     }
 
     AddressAPIQuery addressQuery = new AddressAPIQuery(null, null, null, null);
@@ -223,37 +214,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         plotTweetsOnMap(new AddressGet(), addressQuery);
     }
 
-    private void zoomToNewLocation(String newLocation) {
-        /*
-        Step 1: Fetch Lat-Lng by Address value
-        Step 2: Zoom to LatLng Co-ordinates on Map
-         */
-
-/*  Geocoder code not needed
-      List<LatLng> lat1ngPositionList = null;
-        if(Geocoder.isPresent()){
-            try {
-                Geocoder gc = new Geocoder(this);
-                List<Address> addresses= gc.getFromLocationName(newLocation, 5); // get the found Address Objects
-                lat1ngPositionList = new ArrayList<LatLng>(addresses.size()); // A list to save the coordinates if they are available
-                for(Address a : addresses){
-                    if(a.hasLatitude() && a.hasLongitude()){
-                        lat1ngPositionList.add(new LatLng(a.getLatitude(), a.getLongitude()));
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if(!lat1ngPositionList.isEmpty()){
-              }
-*/
-
-        if(coordinateAPIQuery.lat != null && coordinateAPIQuery.lng != null){
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(Double.parseDouble(coordinateAPIQuery.lat),Double.parseDouble(coordinateAPIQuery.lng))));
+    private void zoomToNewLocation(LatLng loc) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-        }
-
     }
 
     private void plotTweetsOnMap(BaseGet queryGet, BaseAPIQuery queryData) {
@@ -273,8 +236,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
             Log.e(LOG_APPTAG, "Thread killed", meh);
             return;
         }
-       coordinateAPIQuery.lat= result.getSearchLocation().getLat()+"";
-       coordinateAPIQuery.lng= result.getSearchLocation().getLng()+"";
+
         for (Intel tweet : result.getIntel()) {
             User user = tweet.getUser();
             final String userName = user.getName();
@@ -307,6 +269,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
                 }
             });
         }
+
+        SearchLocation search_loc = result.getSearchLocation();
+        zoomToNewLocation(new LatLng(search_loc.getLat(), search_loc.getLng()));
     }
 
     private Bitmap getCircleCroppedBitmap(Bitmap bitmap) {
