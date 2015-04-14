@@ -20,7 +20,6 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.goebl.david.WebbException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -220,21 +219,21 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
     }
 
     private void plotTweetsOnMap(BaseGet queryGet, BaseAPIQuery queryData) {
+        TracesAPIWrapper resultWrapper;
         TracesAPI result;
+
         try {
-            result = queryGet.execute(queryData).get();
-        } catch (WebbException we) {
-            // Network error -> Figure out how to tell UI
-            Log.e(LOG_APPTAG, "Network Error", we);
+            resultWrapper = queryGet.execute(queryData).get();
+        } catch (InterruptedException|ExecutionException t) {
+            errorToast("Thread Killed: " + t.getMessage());
             return;
-        } catch (RuntimeException re) {
-            //API error -> Also figure out what to tell UI here -> need Error class
-            Log.e(LOG_APPTAG, "API Error", re);
+        }
+
+        if (resultWrapper.error != null) {
+            errorToast(resultWrapper.error);
             return;
-        } catch (InterruptedException|ExecutionException meh) {
-            // Eh? -> no idea
-            Log.e(LOG_APPTAG, "Thread killed", meh);
-            return;
+        } else {
+            result = resultWrapper.api;
         }
 
         for (Intel tweet : result.getIntel()) {
@@ -300,23 +299,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
     }
 
 
-/* Toast that takes in Method name & Error Message. */
-    private void errorToast(String method, String errorMessage)
+/* Toast that takes in Error Message. */
+    private void errorToast(String error)
     {
-        Log.d("EXCEPTION: " + method,  errorMessage);
-
-
-        Toast.makeText(getBaseContext(),method+":->"+errorMessage,
+        Log.d(LOG_APPTAG, error);
+        Toast.makeText(getBaseContext(), error,
                 Toast.LENGTH_SHORT).show();
-
-
-        /*
-        //Here's how to use :
-            catch(Exception e)
-            {
-                errorToast("methodName", e.getMessage());
-            }
-            */
     }
 
 }
