@@ -298,4 +298,25 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         Bitmap scaledBitmapOutput = Bitmap.createScaledBitmap(output, 100, 100, false);
         return scaledBitmapOutput;
     }
+
+
+/* Toast that takes in Method name & Error Message. */
+    private void errorToast(String method, String errorMessage)
+    {
+        Log.d("EXCEPTION: " + method,  errorMessage);
+
+
+        Toast.makeText(getBaseContext(),method+":->"+errorMessage,
+                Toast.LENGTH_SHORT).show();
+
+
+        /*
+        //Here's how to use :
+            catch(Exception e)
+            {
+                errorToast("methodName", e.getMessage());
+            }
+            */
+    }
+
 }
