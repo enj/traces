@@ -17,17 +17,11 @@ func apiAddressSearch(w rest.ResponseWriter, r *rest.Request) {
 
 	h := appengineClient(r)
 	googleGeo.HttpClient = h
-	p, errGoogle := googleGeo.Geocode(address)
+	p, a, errGoogle := googleGeo.GeocodeWithAddress(address)
 	if errGoogle != nil {
 		rest.Error(w, errGoogle.Error(), http.StatusBadRequest) //TODO "google error" production
 		return
 	}
 
-	t, err := commonAPIValidation(&q, h, p)
-	if err != nil {
-		rest.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	w.WriteJson(apiIntel{p, t})
+	commonAPIResponse(w, &q, h, p, &a)
 }

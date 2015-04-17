@@ -8,7 +8,7 @@ import (
 	"sort"
 	"time"
 	"internal/github.com/ant0ine/go-json-rest/rest"
-	"internal/github.com/kellydunn/golang-geo"
+	"internal/github.com/enj/golang-geo"
 )
 
 // All input must be validated before using this function
@@ -108,12 +108,12 @@ func apiCoordinateSearch(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
+	h := appengineClient(r)
 	p := geo.NewPoint(lat, lng)
-	t, err := commonAPIValidation(&q, appengineClient(r), p)
-	if err != nil {
-		rest.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 
-	w.WriteJson(apiIntel{p, t})
+	// TODO figure out how to do this request concurrently
+	googleGeo.HttpClient = h
+	a, _ := googleGeo.ReverseGeocode(p) // Don't care about the error since geocode may not have address
+
+	commonAPIResponse(w, &q, h, p, &a)
 }
