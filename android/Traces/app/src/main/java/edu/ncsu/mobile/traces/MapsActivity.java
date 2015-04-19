@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
@@ -42,6 +43,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     Location myLocation = null;
     protected GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
+    private EditText widgetAddress;
+    private EditText widgetRadius;
+    private EditText widgetFromDate;
+    private EditText widgetToDate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +57,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
         search = new SearchView(MapsActivity.this);
         rel_layout = (RelativeLayout) findViewById(id.rl);
+
+        // Advanced Search fields
+        widgetAddress = (EditText) findViewById(R.id.addressText);
+        widgetRadius = (EditText) findViewById(id.radiusText);
+        widgetFromDate = (EditText) findViewById(id.fromDateText);
+        widgetToDate = (EditText) findViewById(id.untilDateText);
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                 RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT);
@@ -321,8 +333,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                coordinateAPIQuery.lat = latLng.latitude+"";
-                coordinateAPIQuery.lng = latLng.longitude+"";
+                coordinateAPIQuery.lat = latLng.latitude + "";
+                coordinateAPIQuery.lng = latLng.longitude + "";
                 coordinateAPIQuery.rad = null;
                 coordinateAPIQuery.since = null;
                 coordinateAPIQuery.until = null;
@@ -331,4 +343,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         });
     }
 
+    public void sendSearchValues(View view) {
+        String address = widgetAddress.getText().toString();
+        String radius = widgetRadius.getText().toString();
+        String fromDate = widgetFromDate.getText().toString();
+        String toDate = widgetToDate.getText().toString();
+
+        AddressAPIQuery addressQuery = new AddressAPIQuery(address, radius, fromDate, toDate);
+    }
 }
