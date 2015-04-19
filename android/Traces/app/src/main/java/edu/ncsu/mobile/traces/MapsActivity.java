@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.koushikdutta.ion.Ion;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.concurrent.ExecutionException;
 
@@ -40,13 +41,16 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     private SearchView search;
     private RelativeLayout rel_layout;
     private static final String LOG_APPTAG = "Traces App";
-    Location myLocation = null;
+    private Location myLocation = null;
     protected GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private AddressAPIQuery addressQuery = new AddressAPIQuery(null, null, null, null);
+    private CoordinateAPIQuery coordinateAPIQuery = new CoordinateAPIQuery(null, null, null, null, null);
 
     private EditText widgetAddress;
     private EditText widgetRadius;
     private EditText widgetFromDate;
     private EditText widgetToDate;
+    private SlidingUpPanelLayout mSlidingPanelLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +58,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         setContentView(layout.activity_maps);
         setUpMapIfNeeded();
 
-
         search = new SearchView(MapsActivity.this);
         rel_layout = (RelativeLayout) findViewById(id.rl);
+
+        // Reference to sliding panel
+        mSlidingPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
 
         // Advanced Search fields
         widgetAddress = (EditText) findViewById(R.id.addressText);
@@ -189,7 +195,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         }).start();
     }
 
-
     private void centerMapToCurrentLocation() {
         //Zoom to current Location
         mMap.setMyLocationEnabled(true);
@@ -217,9 +222,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         coordinateAPIQuery.until = null;
         plotTweetsOnMap(new CoordinateGet(), coordinateAPIQuery);
     }
-
-    AddressAPIQuery addressQuery = new AddressAPIQuery(null, null, null, null);
-    CoordinateAPIQuery coordinateAPIQuery = new CoordinateAPIQuery(null, null, null, null, null);
 
     private void retrieveTweetLocationsAndPlot() {
         // only street is required, the rest can be set to null or empty string
@@ -314,7 +316,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         return Bitmap.createScaledBitmap(output, 120, 120, false);
     }
 
-
 /* Toast that takes in Error Message. */
     private void errorToast(String error)
     {
@@ -343,12 +344,20 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         });
     }
 
+    /**
+     * Retrieves values from the text fields in the advanced search box,
+     * hides the drawer, and submits the search results to be displayed
+     *
+     * @param view
+     */
     public void sendSearchValues(View view) {
-        String address = widgetAddress.getText().toString();
-        String radius = widgetRadius.getText().toString();
-        String fromDate = widgetFromDate.getText().toString();
-        String toDate = widgetToDate.getText().toString();
+        addressQuery.s = widgetAddress.getText().toString();
+        addressQuery.rad = widgetRadius.getText().toString();
+        addressQuery.since = widgetFromDate.getText().toString();
+        addressQuery.until = widgetToDate.getText().toString();
 
-        AddressAPIQuery addressQuery = new AddressAPIQuery(address, radius, fromDate, toDate);
+        mSlidingPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+
+        plotTweetsOnMap(new AddressGet(), addressQuery);
     }
 }

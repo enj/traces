@@ -72,7 +72,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_row="1"
                 android:paddingTop="10dp"
-                android:text="Default Address"
+                android:hint="Enter Address"
                 android:textSize="15dp"
                 android:visibility="visible" />
 
@@ -91,7 +91,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_row="2"
                 android:paddingTop="10dp"
-                android:text="Default Date"
+                android:hint="Enter Date"
                 android:textSize="15dp"
                 android:visibility="visible" />
 
@@ -110,7 +110,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_row="3"
                 android:paddingTop="10dp"
-                android:text="Default Date"
+                android:hint="Enter Date"
                 android:textSize="15dp"
                 android:visibility="visible" />
 
@@ -129,7 +129,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_row="4"
                 android:paddingTop="10dp"
-                android:text="Default Radius"
+                android:hint="Enter Radius"
                 android:textSize="15dp"
                 android:visibility="visible" />
 
