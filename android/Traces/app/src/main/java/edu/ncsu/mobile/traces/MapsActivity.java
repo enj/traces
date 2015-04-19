@@ -11,8 +11,8 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.RadioGroup;
@@ -30,27 +30,30 @@ import com.koushikdutta.ion.Ion;
 
 import java.util.concurrent.ExecutionException;
 
+import static edu.ncsu.mobile.traces.R.id;
+import static edu.ncsu.mobile.traces.R.layout;
 
-public class MapsActivity extends FragmentActivity implements LocationListener {
+
+public class MapsActivity extends FragmentActivity implements LocationListener,GoogleMap.OnMapLongClickListener {
 
     private SearchView search;
     private RelativeLayout rel_layout;
     private static final String LOG_APPTAG = "Traces App";
     Location myLocation = null;
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    protected GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(layout.activity_maps);
         setUpMapIfNeeded();
 
 
         search = new SearchView(MapsActivity.this);
-        rel_layout = (RelativeLayout) findViewById(R.id.rl);
+        rel_layout = (RelativeLayout) findViewById(id.rl);
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                (int) RadioGroup.LayoutParams.WRAP_CONTENT, (int) RadioGroup.LayoutParams.WRAP_CONTENT);
+                RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT);
         params.setMargins(40, 30, 0, 0);
         search.setQueryHint("Enter Location");
         search.setBackgroundColor(Color.WHITE);
@@ -97,6 +100,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
                 return false;
             }
         });
+        mMap.setOnMapLongClickListener(this);
     }
 
     @Override
@@ -144,7 +148,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(id.map))
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
@@ -172,6 +176,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
             }
         }).start();
     }
+
 
     private void centerMapToCurrentLocation() {
         //Zoom to current Location
@@ -248,6 +253,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
                     loc.getLat(),
                     loc.getLng()
             );
+
                  /* Create markers for the tweet data.
                     Must run this on the UI thread since it's a UI operation.
                  */
@@ -262,6 +268,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
                                 .title(userName)
                                 .snippet(tweetText)
                                 .position(userPos));
+
                     } catch (Exception e) {
                         Log.e(LOG_APPTAG, "Error processing JSON", e);
                     }
@@ -291,11 +298,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
         canvas.drawBitmap(bitmap, rect, rect, paint);
 
-     //return output;
-
-        /* Yay!! Lets re-scale the profile image to decent size & return */
-        Bitmap scaledBitmapOutput = Bitmap.createScaledBitmap(output, 100, 100, false);
-        return scaledBitmapOutput;
+        /* Re-scale the profile image to decent size & return */
+        return Bitmap.createScaledBitmap(output, 120, 120, false);
     }
 
 
@@ -305,6 +309,26 @@ public class MapsActivity extends FragmentActivity implements LocationListener {
         Log.d(LOG_APPTAG, error);
         Toast.makeText(getBaseContext(), error,
                 Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onMapLongClick(final LatLng latLng) {
+       mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title("You long-pressed here")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))).setAlpha(0.5f);
+        // **Would be Cool if we can get to give a Explosive or Fadeout animation to the marker when tweets load on map**
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                coordinateAPIQuery.lat = latLng.latitude+"";
+                coordinateAPIQuery.lng = latLng.longitude+"";
+                coordinateAPIQuery.rad = null;
+                coordinateAPIQuery.since = null;
+                coordinateAPIQuery.until = null;
+                plotTweetsOnMap(new CoordinateGet(), coordinateAPIQuery);
+            }
+        });
     }
 
 }

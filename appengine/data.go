@@ -1,7 +1,7 @@
 package traces
 
 import (
-	"internal/github.com/kellydunn/golang-geo"
+	"internal/github.com/enj/golang-geo"
 )
 
 var googleGeo = geo.GoogleGeocoder{}
@@ -30,9 +30,14 @@ type twitterIntel struct {
 
 type tweets []twitterIntel
 
+type fullLocation struct {
+	Location    *geo.Point      `json:"location"`
+	Address     string          `json:"address"`
+}
+
 type apiIntel struct {
-	Location    *geo.Point      `json:"search_location"`
-	Intel       tweets          `json:"intel"`
+	FullLocation    fullLocation    `json:"search_location"`
+	Intel           tweets          `json:"intel"`
 }
 
 func (t tweets) Len() int { return len(t) }

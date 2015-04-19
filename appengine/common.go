@@ -3,7 +3,8 @@ package traces
 import (
 	"net/http"
 	"net/url"
-	"internal/github.com/kellydunn/golang-geo"
+	"internal/github.com/enj/golang-geo"
+	"internal/github.com/ant0ine/go-json-rest/rest"
 )
 
 func commonAPIValidation(q *url.Values, h *http.Client, p *geo.Point) (tweets, error) {
@@ -36,4 +37,14 @@ func commonAPIValidation(q *url.Values, h *http.Client, p *geo.Point) (tweets, e
 	}
 
 	return t, nil
+}
+
+func commonAPIResponse(w rest.ResponseWriter, q *url.Values, h *http.Client, p *geo.Point, a *string) {
+	t, err := commonAPIValidation(q, h, p)
+	if err != nil {
+		rest.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.WriteJson(apiIntel{fullLocation{p, *a}, t})
 }
