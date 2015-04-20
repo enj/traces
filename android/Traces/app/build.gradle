@@ -24,6 +24,7 @@ dependencies {
     compile 'com.sothree.slidinguppanel:library:3.0.0'
     compile 'com.android.support:appcompat-v7:21.0.2'
     compile 'com.google.android.gms:play-services:6.5.87'
+    compile 'com.sothree.slidinguppanel:library:3.0.0'
     compile files('libs/david-webb-1.1.0-jar-with-dependencies.jar')
 }
 

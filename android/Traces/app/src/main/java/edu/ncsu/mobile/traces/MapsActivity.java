@@ -37,7 +37,6 @@ import static edu.ncsu.mobile.traces.R.layout;
 
 
 public class MapsActivity extends FragmentActivity implements LocationListener,GoogleMap.OnMapLongClickListener {
-
     private SearchView search;
     private RelativeLayout rel_layout;
     private static final String LOG_APPTAG = "Traces App";
