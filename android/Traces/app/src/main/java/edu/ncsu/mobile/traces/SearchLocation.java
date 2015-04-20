@@ -1,6 +1,4 @@
-
 package edu.ncsu.mobile.traces;
-
 
 import com.google.gson.annotations.Expose;
 
@@ -8,44 +6,44 @@ import com.google.gson.annotations.Expose;
 public class SearchLocation {
 
     @Expose
-    private Double lat;
+    private Location location;
     @Expose
-    private Double lng;
+    private String address;
 
     /**
-     * 
+     *
      * @return
-     *     The lat
+     *     The location
      */
-    public Double getLat() {
-        return lat;
+    public Location getLocation() {
+        return location;
     }
 
     /**
-     * 
-     * @param lat
-     *     The lat
+     *
+     * @param location
+     *     The location
      */
-    public void setLat(Double lat) {
-        this.lat = lat;
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     /**
-     * 
+     *
      * @return
-     *     The lng
+     *     The address
      */
-    public Double getLng() {
-        return lng;
+    public String getAddress() {
+        return address;
     }
 
     /**
-     * 
-     * @param lng
-     *     The lng
+     *
+     * @param address
+     *     The address
      */
-    public void setLng(Double lng) {
-        this.lng = lng;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
 }

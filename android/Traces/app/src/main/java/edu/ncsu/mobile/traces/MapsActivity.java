@@ -289,7 +289,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
             });
         }
 
-        SearchLocation search_loc = result.getSearchLocation();
+        edu.ncsu.mobile.traces.Location search_loc = result.getSearchLocation().getLocation();
         zoomToNewLocation(new LatLng(search_loc.getLat(), search_loc.getLng()));
     }
 
