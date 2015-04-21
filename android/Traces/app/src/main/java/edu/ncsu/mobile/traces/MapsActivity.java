@@ -79,17 +79,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         search.setLayoutParams(params);
         rel_layout.addView(search);
 
-        //***setOnQueryTextFocusChangeListener***
-        search.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                // TODO Auto-generated method stub
-
-                Toast.makeText(getBaseContext(), String.valueOf(hasFocus),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
 
         //***setOnQueryTextListener***
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -110,10 +99,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // TODO Auto-generated method stub
-
-                Toast.makeText(getBaseContext(), newText,
-                        Toast.LENGTH_SHORT).show();
+                //Do Nothing
                 return false;
             }
         });
