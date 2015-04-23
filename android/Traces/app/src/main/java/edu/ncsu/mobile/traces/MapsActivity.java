@@ -21,6 +21,9 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -36,7 +39,9 @@ import static edu.ncsu.mobile.traces.R.id;
 import static edu.ncsu.mobile.traces.R.layout;
 
 
-public class MapsActivity extends FragmentActivity implements LocationListener,GoogleMap.OnMapLongClickListener {
+public class MapsActivity extends FragmentActivity implements LocationListener,GoogleMap.OnMapLongClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+
+    private GoogleApiClient googleAPI;
     private SearchView search;
     private RelativeLayout rel_layout;
     private static final String LOG_APPTAG = "Traces App";
@@ -54,8 +59,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        googleAPI = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
         setContentView(layout.activity_maps);
-        setUpMapIfNeeded();
 
         search = new SearchView(MapsActivity.this);
         rel_layout = (RelativeLayout) findViewById(id.rl);
@@ -103,7 +114,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                 return false;
             }
         });
-        mMap.setOnMapLongClickListener(this);
     }
 
     @Override
@@ -168,28 +178,29 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
      */
     private void setUpMap() {
         centerMapToCurrentLocation();
-        new Thread(new Runnable() {
-            public void run() {
+        //new Thread(new Runnable() {
+        ///    public void run() {
                 try {
                     plotTweetsByDefaultLocation(myLocation);
                 } catch (Exception e) {
                     Log.e(LOG_APPTAG, "Cannot retrieve geo locations", e);
                     return;
                 }
-            }
-        }).start();
+        //    }
+        //}).start();
     }
 
     private void centerMapToCurrentLocation() {
         //Zoom to current Location
         mMap.setMyLocationEnabled(true);
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String bestProvider = locationManager.getBestProvider(criteria, true);
-        myLocation = locationManager.getLastKnownLocation(bestProvider);
+        //LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        // Criteria criteria = new Criteria();
+        //String bestProvider = locationManager.getBestProvider(criteria, true);
+        myLocation = LocationServices.FusedLocationApi.getLastLocation(googleAPI);
+
         if (myLocation != null) {
             onLocationChanged(myLocation);
-            locationManager.requestLocationUpdates(bestProvider, 20000, 0, this);
+            //locationManager.requestLocationUpdates(bestProvider, 20000, 0, this);
             double latitude = myLocation.getLatitude();
             double longitude = myLocation.getLongitude();
             LatLng latLng = new LatLng(latitude, longitude);
@@ -344,5 +355,33 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         mSlidingPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 
         plotTweetsOnMap(new AddressGet(), addressQuery);
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        setUpMapIfNeeded();
+        mMap.setOnMapLongClickListener(this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        googleAPI.connect();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        googleAPI.disconnect();
     }
 }
