@@ -1,5 +1,10 @@
 package edu.ncsu.mobile.traces;
 
+import android.app.ActionBar;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.content.res.Configuration;
+import edu.ncsu.mobile.traces.R;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,9 +18,18 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
@@ -30,11 +44,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.koushikdutta.ion.Ion;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import static edu.ncsu.mobile.traces.R.id;
 import static edu.ncsu.mobile.traces.R.layout;
-
 
 public class MapsActivity extends FragmentActivity implements LocationListener,GoogleMap.OnMapLongClickListener {
     private SearchView search;
@@ -51,11 +66,23 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     private EditText widgetToDate;
     private SlidingUpPanelLayout mSlidingPanelLayout;
 
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private String[] mDrawerStrings;
+
+    private CharSequence mDrawerTitle;
+    private CharSequence mTitle;
+    private ArrayList<Intel> mTweetIntel;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(layout.activity_maps);
         setUpMapIfNeeded();
+
+
 
         search = new SearchView(MapsActivity.this);
         rel_layout = (RelativeLayout) findViewById(id.rl);
@@ -240,6 +267,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
             result = resultWrapper.api;
         }
 
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mTweetIntel = new ArrayList<Intel>();//String[result.getIntel().size()];
+        mDrawerStrings = new String[result.getIntel().size()];
+        final String listTitle = result.getSearchLocation().getAddress();
+        //mDrawerTitle = mTweetIntel.toArray();
+        int i = 0;
+
         for (Intel tweet : result.getIntel()) {
             User user = tweet.getUser();
             final String userName = user.getName();
@@ -247,12 +281,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
             final String tweetText = tweet.getText();
             //final String profileLocation = user.getProfileLocation();
             final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
-
+            mTweetIntel.add(tweet);
+            mDrawerStrings[i++] = tweet.getUser().getName();
             final LatLng userPos = new LatLng(
                     loc.getLat(),
                     loc.getLng()
             );
-
                  /* Create markers for the tweet data.
                     Must run this on the UI thread since it's a UI operation.
                  */
@@ -274,6 +308,40 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                 }
             });
         }
+
+
+        mTitle = mDrawerTitle = getTitle();
+        //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        //mDrawerLayout.setDrawerShadow(drawer_shadow, GravityCompat.START);
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, mDrawerStrings));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        //this.getActionBar().setDisplayHomeAsUpEnabled(true);
+        //this.getActionBar().setHomeButtonEnabled(true);
+
+        //final ActionBar actionBar = this.getActionBar();
+
+
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */  //WTF
+                R.string.drawer_close /* "close drawer" description for accessibility */  //WTF
+        ) {
+            public void onDrawerClosed(View view) {
+                //actionBar.setTitle(listTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                //actionBar.setTitle(mDrawerTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
 
         edu.ncsu.mobile.traces.Location search_loc = result.getSearchLocation().getLocation();
         zoomToNewLocation(new LatLng(search_loc.getLat(), search_loc.getLng()));
@@ -345,4 +413,38 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
         plotTweetsOnMap(new AddressGet(), addressQuery);
     }
+
+    /* The click listner for ListView in the navigation drawer */
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectItem(position);
+        }
+    }
+
+    private void selectItem(int position) {
+        // update the main content by replacing fragments
+        /*
+        Fragment fragment = new PlanetFragment();
+        Bundle args = new Bundle();
+        args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
+        fragment.setArguments(args);
+
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+        // update selected item and title, then close the drawer
+        mDrawerList.setItemChecked(position, true);
+        setTitle(mPlanetTitles[position]);
+        mDrawerLayout.closeDrawer(mDrawerList);
+        */
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        mTitle = title;
+        //getActionBar().setTitle(mTitle);
+    }
+
 }
+

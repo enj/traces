@@ -1,150 +1,185 @@
-<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:sothree="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/sliding_layout"
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="bottom"
-    sothree:umanoDragView="@+id/dragView"
-    sothree:umanoFadeColor="#ffffff"
-    sothree:umanoOverlay="true"
-    sothree:umanoPanelHeight="20dp">
+    android:layout_height="match_parent">
 
-    <!-- Map Layout -->
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/rl"
+    <!-- As the main content view, the view below consumes the entire
+         space available using match_parent in both dimensions. -->
+    <FrameLayout
+        android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" />
 
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context="edu.ncsu.mobile.traces.MapsActivity"
-            tools:layout="@layout/activity_main" />
-        --tools:layout="@layout/activity_maps" />
+    <!-- android:layout_gravity="start" tells DrawerLayout to treat
+         this as a sliding drawer on the left side for left-to-right
+         languages and on the right side for right-to-left languages.
+         The drawer is given a fixed width in dp and extends the full height of
+         the container. A solid background is used for contrast
+         with the content view. -->
+    <ListView
+        android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:background="#111"/>
 
-    </RelativeLayout>
-
-    <!-- Sliding Drawer Layout -->
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:sothree="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        tools:context=".GridLayoutActivity">
+        android:gravity="bottom"
+        sothree:umanoDragView="@+id/dragView"
+        sothree:umanoFadeColor="#ffffff"
+        sothree:umanoOverlay="true"
+        sothree:umanoPanelHeight="20dp">
 
-        <GridLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:columnCount="2"
-            android:rowCount="6"
-            android:orientation="horizontal">
+        <!-- Map Layout -->
 
-            <!-- Row 1 -->
-            <TextView
-                android:id="@+id/advancedSearchLabel"
-                android:layout_columnSpan="2"
-                android:layout_row="0"
-                android:paddingTop="10dp"
-                android:layout_gravity="center"
-                android:text="Advanced Search"
-                android:textSize="20dp" />
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/rl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-            <!-- Row 2 -->
-            <TextView
-                android:id="@+id/addressLabel"
-                android:layout_column="0"
-                android:layout_row="1"
-                android:paddingTop="10dp"
-                android:text="Address"
-                android:textSize="15dp" />
-
-            <EditText
-                android:id="@+id/addressText"
-                android:layout_column="1"
-                android:layout_marginLeft="10dp"
-                android:layout_row="1"
-                android:paddingTop="10dp"
-                android:hint="Enter Address"
-                android:textSize="15dp"
-                android:visibility="visible" />
-
-            <!-- Row 3 -->
-            <TextView
-                android:id="@+id/fromDateLabel"
-                android:layout_column="0"
-                android:layout_row="2"
-                android:paddingTop="10dp"
-                android:text="From Date"
-                android:textSize="15dp" />
-
-            <EditText
-                android:id="@+id/fromDateText"
-                android:layout_column="1"
-                android:layout_marginLeft="10dp"
-                android:layout_row="2"
-                android:paddingTop="10dp"
-                android:hint="Enter Date"
-                android:textSize="15dp"
-                android:visibility="visible" />
-
-            <!-- Row 4 -->
-            <TextView
-                android:id="@+id/untilDateLabel"
-                android:layout_column="0"
-                android:layout_row="3"
-                android:paddingTop="10dp"
-                android:text="Until Date"
-                android:textSize="15dp" />
-
-            <EditText
-                android:id="@+id/untilDateText"
-                android:layout_column="1"
-                android:layout_marginLeft="10dp"
-                android:layout_row="3"
-                android:paddingTop="10dp"
-                android:hint="Enter Date"
-                android:textSize="15dp"
-                android:visibility="visible" />
-
-            <!-- Row 5 -->
-            <TextView
-                android:id="@+id/radiusLabel"
-                android:layout_column="0"
-                android:layout_row="4"
-                android:paddingTop="10dp"
-                android:text="Radius"
-                android:textSize="15dp" />
-
-            <EditText
-                android:id="@+id/radiusText"
-                android:layout_column="1"
-                android:layout_marginLeft="10dp"
-                android:layout_row="4"
-                android:paddingTop="10dp"
-                android:hint="Enter Radius"
-                android:textSize="15dp"
-                android:visibility="visible" />
-
-            <!-- Row 6 -->
-            <Button
-                android:id="@+id/advSearchButton"
-                android:layout_columnSpan="2"
-                android:layout_row="5"
-                android:layout_gravity="center"
-                android:text="Search"
-                android:onClick="sendSearchValues"/>
+            <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="edu.ncsu.mobile.traces.MapsActivity"
+                tools:layout="@layout/activity_main" />
+            --tools:layout="@layout/activity_maps" />
 
 
-        </GridLayout>
-    </RelativeLayout>
 
-</com.sothree.slidinguppanel.SlidingUpPanelLayout>
+        </RelativeLayout>
+
+        <!-- Sliding Drawer Layout -->
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            tools:context=".GridLayoutActivity">
+
+            <GridLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:columnCount="2"
+                android:rowCount="6"
+                android:orientation="horizontal">
+
+                <!-- Row 1 -->
+                <TextView
+                    android:id="@+id/advancedSearchLabel"
+                    android:layout_columnSpan="2"
+                    android:layout_row="0"
+                    android:paddingTop="10dp"
+                    android:layout_gravity="center"
+                    android:text="Advanced Search"
+                    android:textSize="20dp" />
+
+                <!-- Row 2 -->
+                <TextView
+                    android:id="@+id/addressLabel"
+                    android:layout_column="0"
+                    android:layout_row="1"
+                    android:paddingTop="10dp"
+                    android:text="Address"
+                    android:textSize="15dp" />
+
+                <EditText
+                    android:id="@+id/addressText"
+                    android:layout_column="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_row="1"
+                    android:paddingTop="10dp"
+                    android:hint="Enter Address"
+                    android:textSize="15dp"
+                    android:visibility="visible" />
+
+                <!-- Row 3 -->
+                <TextView
+                    android:id="@+id/fromDateLabel"
+                    android:layout_column="0"
+                    android:layout_row="2"
+                    android:paddingTop="10dp"
+                    android:text="From Date"
+                    android:textSize="15dp" />
+
+                <EditText
+                    android:id="@+id/fromDateText"
+                    android:layout_column="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_row="2"
+                    android:paddingTop="10dp"
+                    android:hint="Enter Date"
+                    android:textSize="15dp"
+                    android:visibility="visible" />
+
+                <!-- Row 4 -->
+                <TextView
+                    android:id="@+id/untilDateLabel"
+                    android:layout_column="0"
+                    android:layout_row="3"
+                    android:paddingTop="10dp"
+                    android:text="Until Date"
+                    android:textSize="15dp" />
+
+                <EditText
+                    android:id="@+id/untilDateText"
+                    android:layout_column="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_row="3"
+                    android:paddingTop="10dp"
+                    android:hint="Enter Date"
+                    android:textSize="15dp"
+                    android:visibility="visible" />
+
+                <!-- Row 5 -->
+                <TextView
+                    android:id="@+id/radiusLabel"
+                    android:layout_column="0"
+                    android:layout_row="4"
+                    android:paddingTop="10dp"
+                    android:text="Radius"
+                    android:textSize="15dp" />
+
+                <EditText
+                    android:id="@+id/radiusText"
+                    android:layout_column="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_row="4"
+                    android:paddingTop="10dp"
+                    android:hint="Enter Radius"
+                    android:textSize="15dp"
+                    android:visibility="visible" />
+
+                <!-- Row 6 -->
+                <Button
+                    android:id="@+id/advSearchButton"
+                    android:layout_columnSpan="2"
+                    android:layout_row="5"
+                    android:layout_gravity="center"
+                    android:text="Search"
+                    android:onClick="sendSearchValues"/>
+
+
+            </GridLayout>
+        </RelativeLayout>
+
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+
+</android.support.v4.widget.DrawerLayout>
+
+
