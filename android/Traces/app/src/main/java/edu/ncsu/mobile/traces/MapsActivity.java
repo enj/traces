@@ -43,7 +43,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     private SearchView search;
     private RelativeLayout rel_layout;
     private static final String LOG_APPTAG = "Traces App";
-    private Location myLocation = null;
     protected GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private AddressAPIQuery addressQuery = new AddressAPIQuery(null, null, null, null);
     private CoordinateAPIQuery coordinateAPIQuery = new CoordinateAPIQuery(null, null, null, null, null);
@@ -136,19 +135,24 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     }
 
     private void centerMapToCurrentLocation() {
-        mMap.setMyLocationEnabled(true);
-        myLocation = LocationServices.FusedLocationApi.getLastLocation(googleAPI);
+        Location myLocation = LocationServices.FusedLocationApi.getLastLocation(googleAPI);
 
         if (myLocation != null) {
             double latitude = myLocation.getLatitude();
             double longitude = myLocation.getLongitude();
             LatLng latLng = new LatLng(latitude, longitude);
             mMap.addMarker(new MarkerOptions().position(latLng));
-            plotTweetsByDefaultLocation();
+        } else {
+            errorToast("Cannot determine current location.\nLets pretend we work for Google!");
+            myLocation = new Location("");
+            myLocation.setLatitude(37.4219928);
+            myLocation.setLongitude(-122.0840694);
         }
+
+        plotTweetsByDefaultLocation(myLocation);
     }
 
-    private void plotTweetsByDefaultLocation() {
+    private void plotTweetsByDefaultLocation(Location myLocation) {
         coordinateAPIQuery.lat = myLocation.getLatitude()+"";
         coordinateAPIQuery.lng = myLocation.getLongitude()+"";
         coordinateAPIQuery.rad = null;
@@ -167,8 +171,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     }
 
     private void zoomToNewLocation(LatLng loc) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 14));
+    }
+
+    // If original is true then gets the full size image URL which can be very large
+    private String betterImageURL(String url, boolean original) {
+        int s = url.lastIndexOf("_normal.");
+        return url.substring(0, s) + (original ? "" : "_bigger") + url.substring(s + 7);
     }
 
     private void plotTweetsOnMap(BaseGet queryGet, BaseAPIQuery queryData) {
@@ -189,10 +198,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
             result = resultWrapper.api;
         }
 
+        mMap.clear();
         for (Intel tweet : result.getIntel()) {
             User user = tweet.getUser();
             final String userName = user.getName();
-            final String profileImageUrl = user.getProfileImageUrlHttps();
+            final String profileImageUrl = betterImageURL(user.getProfileImageUrlHttps(), false);
             final String tweetText = tweet.getText();
             //final String profileLocation = user.getProfileLocation();
             final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
@@ -218,7 +228,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                                 .position(userPos));
 
                     } catch (Exception e) {
-                        Log.e(LOG_APPTAG, "Error processing JSON", e);
+                        Log.e(LOG_APPTAG, "Error adding bitmap marker.", e);
                     }
                 }
             });
@@ -247,7 +257,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         canvas.drawBitmap(bitmap, rect, rect, paint);
 
         /* Re-scale the profile image to decent size & return */
-        return Bitmap.createScaledBitmap(output, 120, 120, false);
+        //return Bitmap.createScaledBitmap(output, 120, 120, false);
+        //Image is 73x73 so don't want to resize since it looks like crap
+        return output;
     }
 
 /* Toast that takes in Error Message. */
@@ -255,11 +267,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     {
         Log.d(LOG_APPTAG, error);
         Toast.makeText(getBaseContext(), error,
-                Toast.LENGTH_SHORT).show();
+                Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onMapLongClick(final LatLng latLng) {
+       //Probably should not put a marker when no results are found
        mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title("You long-pressed here")
@@ -282,7 +295,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
      * Retrieves values from the text fields in the advanced search box,
      * hides the drawer, and submits the search results to be displayed
      *
-     * @param view
+     * @param view the view
      */
     public void sendSearchValues(View view) {
         addressQuery.s = widgetAddress.getText().toString();
