@@ -171,7 +171,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     }
 
     private void zoomToNewLocation(LatLng loc) {
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 14));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 13.9f));
     }
 
     // If original is true then gets the full size image URL which can be very large

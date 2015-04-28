@@ -8,7 +8,8 @@
     sothree:umanoDragView="@+id/dragView"
     sothree:umanoFadeColor="#ffffff"
     sothree:umanoOverlay="true"
-    sothree:umanoPanelHeight="20dp">
+    sothree:umanoPanelHeight="20dp"
+    sothree:umanoShadowHeight="0dp">
 
     <!-- Map Layout -->
 
