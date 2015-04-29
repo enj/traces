@@ -29,6 +29,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
@@ -59,7 +60,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private ArrayList<CustomMarker> customMarkersArray = new ArrayList<>();
     private AddressAPIQuery addressQuery = new AddressAPIQuery(null, null, null, null);
     private CoordinateAPIQuery coordinateAPIQuery = new CoordinateAPIQuery(null, null, null, null, null);
-
 
     private EditText widgetAddress;
     private EditText widgetRadius;
@@ -487,6 +487,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         public View getInfoContents(Marker marker)
         {
             bounceMarker(marker);
+            
+            // * Felt it'd be cool if we Auto-center Marker position to center of the map screen
+            int zoom = (int)mMap.getCameraPosition().zoom;
+            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(new LatLng(marker.getPosition().latitude + (double)90/Math.pow(2, zoom), marker.getPosition().longitude), zoom);
+            mMap.animateCamera(cu);
+
             View v  = getLayoutInflater().inflate(layout.info_window, null);
             CustomMarker myMarker = mMarkersHashMap.get(marker);
             ImageView markerIcon = (ImageView) v.findViewById(id.popUpImageView);
@@ -508,6 +514,5 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             return v;
         }
     }
-
 
 }
