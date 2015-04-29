@@ -95,7 +95,8 @@
                 android:paddingTop="10dp"
                 android:hint="Enter Date"
                 android:textSize="15dp"
-                android:visibility="visible" />
+                android:visibility="visible"
+                android:focusableInTouchMode="false"/>
 
             <!-- Row 4 -->
             <TextView
@@ -114,7 +115,8 @@
                 android:paddingTop="10dp"
                 android:hint="Enter Date"
                 android:textSize="15dp"
-                android:visibility="visible" />
+                android:visibility="visible"
+                android:focusableInTouchMode="false"/>
 
             <!-- Row 5 -->
             <TextView

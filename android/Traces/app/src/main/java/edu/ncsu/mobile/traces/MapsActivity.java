@@ -1,5 +1,7 @@
 package edu.ncsu.mobile.traces;
 
+import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,8 +12,10 @@ import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
@@ -31,13 +35,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.koushikdutta.ion.Ion;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import static edu.ncsu.mobile.traces.R.id;
 import static edu.ncsu.mobile.traces.R.layout;
 
 
-public class MapsActivity extends FragmentActivity implements LocationListener,GoogleMap.OnMapLongClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MapsActivity extends FragmentActivity implements LocationListener,GoogleMap.OnMapLongClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
     private GoogleApiClient googleAPI;
     private SearchView search;
@@ -47,11 +54,17 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     private AddressAPIQuery addressQuery = new AddressAPIQuery(null, null, null, null);
     private CoordinateAPIQuery coordinateAPIQuery = new CoordinateAPIQuery(null, null, null, null, null);
 
-    private EditText widgetAddress;
-    private EditText widgetRadius;
-    private EditText widgetFromDate;
-    private EditText widgetToDate;
+    // Sliding (up) panel references
+    private EditText mAddressEditText;
+    private EditText mRadiusEditText;
+    private EditText mFromDateEditText;
+    private EditText mUntilDateEditText;
     private SlidingUpPanelLayout mSlidingPanelLayout;
+
+    // DatePicker references (Advanced Search Drawer)
+    private DatePickerDialog mFromDatePickerDialog;
+    private DatePickerDialog mUntilDatePickerDialog;
+    private SimpleDateFormat mDateFormatter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,11 +86,19 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         // Reference to sliding panel
         mSlidingPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
 
+        mDateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
         // Advanced Search fields
-        widgetAddress = (EditText) findViewById(R.id.addressText);
-        widgetRadius = (EditText) findViewById(id.radiusText);
-        widgetFromDate = (EditText) findViewById(id.fromDateText);
-        widgetToDate = (EditText) findViewById(id.untilDateText);
+        mAddressEditText = (EditText) findViewById(R.id.addressText);
+        mRadiusEditText = (EditText) findViewById(id.radiusText);
+
+        mFromDateEditText = (EditText) findViewById(id.fromDateText);
+        mFromDateEditText.setInputType(InputType.TYPE_NULL);
+
+        mUntilDateEditText = (EditText) findViewById(id.untilDateText);
+        mUntilDateEditText.setInputType(InputType.TYPE_NULL);
+
+        this.setDateTimeField();
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                 RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT);
@@ -298,10 +319,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
      * @param view the view
      */
     public void sendSearchValues(View view) {
-        addressQuery.s = widgetAddress.getText().toString();
-        addressQuery.rad = widgetRadius.getText().toString();
-        addressQuery.since = widgetFromDate.getText().toString();
-        addressQuery.until = widgetToDate.getText().toString();
+        addressQuery.s = mAddressEditText.getText().toString();
+        addressQuery.rad = mRadiusEditText.getText().toString();
+        addressQuery.since = mFromDateEditText.getText().toString();
+        addressQuery.until = mUntilDateEditText.getText().toString();
 
         mSlidingPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 
@@ -333,5 +354,40 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     public void onStop() {
         super.onStop();
         googleAPI.disconnect();
+    }
+
+    private void setDateTimeField() {
+        mFromDateEditText.setOnClickListener(this);
+        mUntilDateEditText.setOnClickListener(this);
+
+        Calendar newCalendar = Calendar.getInstance();
+        mFromDatePickerDialog = new DatePickerDialog(this, new OnDateSetListener() {
+
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                Calendar newDate = Calendar.getInstance();
+                newDate.set(year, monthOfYear, dayOfMonth);
+                mFromDateEditText.setText(mDateFormatter.format(newDate.getTime()));
+            }
+
+        },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+
+        mUntilDatePickerDialog = new DatePickerDialog(this, new OnDateSetListener() {
+
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                Calendar newDate = Calendar.getInstance();
+                newDate.set(year, monthOfYear, dayOfMonth);
+                mUntilDateEditText.setText(mDateFormatter.format(newDate.getTime()));
+            }
+
+        },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+    }
+
+    @Override
+    public void onClick(View view) {
+        if(view == mFromDateEditText) {
+            mFromDatePickerDialog.show();
+        } else if(view == mUntilDateEditText) {
+            mUntilDatePickerDialog.show();
+        }
     }
 }
