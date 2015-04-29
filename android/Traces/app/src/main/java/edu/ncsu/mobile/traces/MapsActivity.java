@@ -4,14 +4,19 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
@@ -26,6 +31,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -300,6 +306,45 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
     }
 
+
+    public boolean bounceMarker(final Marker marker){
+
+        //Make the marker bounce
+        final Handler handler = new Handler();
+
+        final long startTime = SystemClock.uptimeMillis();
+        final long duration = 2000;
+
+        Projection proj = mMap.getProjection();
+        final LatLng markerLatLng = marker.getPosition();
+        Point startPoint = proj.toScreenLocation(markerLatLng);
+        startPoint.offset(0, -100);
+        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+
+        final Interpolator interpolator = new BounceInterpolator();
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - startTime;
+                float t = interpolator.getInterpolation((float) elapsed / duration);
+                double lng = t * markerLatLng.longitude + (1 - t) * startLatLng.longitude;
+                double lat = t * markerLatLng.latitude + (1 - t) * startLatLng.latitude;
+                marker.setPosition(new LatLng(lat, lng));
+
+                if (t < 1.0) {
+                    // Post again 16ms later.
+                    handler.postDelayed(this, 16);
+                }
+            }
+        });
+
+        //return false; //have not consumed the event
+        return true; //have consumed the event
+    }
+
+
+
     private Bitmap getCircleCroppedBitmap(Bitmap bitmap,int colorIndicator) {
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -441,6 +486,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         @Override
         public View getInfoContents(Marker marker)
         {
+            bounceMarker(marker);
             View v  = getLayoutInflater().inflate(layout.info_window, null);
             CustomMarker myMarker = mMarkersHashMap.get(marker);
             ImageView markerIcon = (ImageView) v.findViewById(id.popUpImageView);
