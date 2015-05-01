@@ -21,6 +21,7 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
@@ -90,7 +91,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
-    private String[] mDrawerStrings;
+//    private String[] mDrawerStrings;
 
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
@@ -266,7 +267,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mTweetIntel = new ArrayList<Intel>();//String[result.getIntel().size()];
-        mDrawerStrings = new String[result.getIntel().size()];
         final String listTitle = result.getSearchLocation().getAddress();
         //mDrawerTitle = mTweetIntel.toArray();
         int i = 0;
@@ -284,7 +284,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             //final String profileLocation = user.getProfileLocation();
             final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
             mTweetIntel.add(tweet);
-            mDrawerStrings[i++] = tweet.getUser().getName();
 
             final LatLng userPos = new LatLng(
                     loc.getLat(),
@@ -316,6 +315,26 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mDrawerList.setAdapter(adapter);
 
 //        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        mDrawerList.bringToFront();
+        mDrawerList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                // TODO Auto-generated method stub
+                if (scrollState == SCROLL_STATE_IDLE) {
+                    mDrawerList.bringToFront();
+//                    mDrawerLayout.requestLayout();
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
 
         plotMarkers(customMarkersArray);
         edu.ncsu.mobile.traces.Location search_loc = result.getSearchLocation().getLocation();
