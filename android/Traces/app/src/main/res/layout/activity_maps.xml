@@ -23,8 +23,8 @@
         android:layout_width="256dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:dividerHeight="0.1dp"
-        android:divider="@android:color/holo_blue_light"
+        android:dividerHeight="0.01dp"
+        android:divider="@android:color/darker_gray"
         android:background="@color/material_blue_grey_950"/>
 
 
