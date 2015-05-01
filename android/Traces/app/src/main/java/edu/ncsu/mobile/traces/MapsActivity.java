@@ -391,7 +391,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
         Bitmap borderedOutput = getColorBorderedBitmapVersion(output,colorIndicator);
 
-        return borderedOutput;
+        return Bitmap.createScaledBitmap(borderedOutput, 100, 100, false);
     }
 
     private Bitmap getColorBorderedBitmapVersion(Bitmap bitmap,int color) {
@@ -543,7 +543,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         public View getInfoContents(Marker marker)
         {
             bounceMarker(marker);
-            
+
             // * Felt it'd be cool if we Auto-center Marker position to center of the map screen
             int zoom = (int)mMap.getCameraPosition().zoom;
             CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(new LatLng(marker.getPosition().latitude + (double)90/Math.pow(2, zoom), marker.getPosition().longitude), zoom);
@@ -552,8 +552,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
             View v  = getLayoutInflater().inflate(layout.info_window, null);
             CustomMarker myMarker = mMarkersHashMap.get(marker);
             ImageView markerIcon = (ImageView) v.findViewById(id.popUpImageView);
-            TextView markerLabel = (TextView)v.findViewById(id.popUpTweetContent);
+            TextView markerTweet = (TextView)v.findViewById(id.popUpTweetContent);
+            TextView markerTitle = (TextView)v.findViewById(id.popUpTitle);
 
+//            TextView markerFavoriteCount = (TextView)v.findViewById(id.textFavorite);
             Bitmap bmImg = null;
             try {
                 bmImg = Ion.with(getApplicationContext())
@@ -566,7 +568,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
             int colorValue = Color.LTGRAY;
             Bitmap mapMarkerImg = getCircleCroppedBitmap(bmImg,colorValue);
             markerIcon.setImageBitmap(mapMarkerImg);
-            markerLabel.setText(myMarker.getmTweetText());
+            markerTitle.setText(myMarker.getmUserName());
+            markerTweet.setText(myMarker.getmTweetText());
+//            markerFavoriteCount.setText(""+myMarker.getFavoriteCount());
             return v;
         }
     }
