@@ -15,14 +15,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
@@ -79,6 +84,16 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     private DatePickerDialog mFromDatePickerDialog;
     private DatePickerDialog mUntilDatePickerDialog;
     private SimpleDateFormat mDateFormatter;
+
+    // Drawer layout
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private String[] mDrawerStrings;
+
+    private CharSequence mDrawerTitle;
+    private CharSequence mTitle;
+    private ArrayList<Intel> mTweetIntel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -246,6 +261,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         }
 
         mMap.clear();
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mTweetIntel = new ArrayList<Intel>();//String[result.getIntel().size()];
+        mDrawerStrings = new String[result.getIntel().size()];
+        final String listTitle = result.getSearchLocation().getAddress();
+        //mDrawerTitle = mTweetIntel.toArray();
+        int i = 0;
+
         // Initialize the HashMap for Markers and MyMarker object
         mMarkersHashMap = new HashMap<>();
         customMarkersArray = new ArrayList<>();
@@ -258,6 +281,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
             final long favCount = tweet.getFavoriteCount();
             //final String profileLocation = user.getProfileLocation();
             final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
+            mTweetIntel.add(tweet);
+            mDrawerStrings[i++] = tweet.getUser().getName();
 
             final LatLng userPos = new LatLng(
                     loc.getLat(),
@@ -278,6 +303,38 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                 }
             });
         }
+
+        mTitle = mDrawerTitle = getTitle();
+        //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        //mDrawerLayout.setDrawerShadow(drawer_shadow, GravityCompat.START);
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, mDrawerStrings));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        //this.getActionBar().setDisplayHomeAsUpEnabled(true);
+        //this.getActionBar().setHomeButtonEnabled(true);
+
+        //final ActionBar actionBar = this.getActionBar();
+
+
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */  //WTF
+                R.string.drawer_close /* "close drawer" description for accessibility */  //WTF
+        ) {
+            public void onDrawerClosed(View view) {
+                //actionBar.setTitle(listTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                //actionBar.setTitle(mDrawerTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         plotMarkers(customMarkersArray);
         edu.ncsu.mobile.traces.Location search_loc = result.getSearchLocation().getLocation();
@@ -574,4 +631,37 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
             return v;
         }
     }
+
+    /* The click listner for ListView in the navigation drawer */
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectItem(position);
+        }
+    }
+
+    private void selectItem(int position) {
+        // update the main content by replacing fragments
+        /*
+        Fragment fragment = new PlanetFragment();
+        Bundle args = new Bundle();
+        args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
+        fragment.setArguments(args);
+
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+        // update selected item and title, then close the drawer
+        mDrawerList.setItemChecked(position, true);
+        setTitle(mPlanetTitles[position]);
+        mDrawerLayout.closeDrawer(mDrawerList);
+        */
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        mTitle = title;
+        //getActionBar().setTitle(mTitle);
+    }
+
 }
