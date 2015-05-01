@@ -136,6 +136,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         search.setBackgroundColor(Color.WHITE);
         search.getBackground().setAlpha(205);
 
+
         search.setLayoutParams(params);
         rel_layout.addView(search);
 
