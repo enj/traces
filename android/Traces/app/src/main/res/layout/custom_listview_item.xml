@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/listView_profileImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="@color/material_blue_grey_950"
+            android:contentDescription="Profile"
+            android:scaleType="center" />
+
+
+        <TextView
+            android:id="@+id/listView_UserTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:text="Title Text"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/listView_tweet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="5dp"
+        android:text="Sample Tweet"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+</LinearLayout>
+
+
+    <!----><!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"--><!--android:layout_width="match_parent" android:layout_height="match_parent">-->
+
+    <!----><!----><!--<ImageView--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:id="@+id/imageView"--><!--android:layout_alignParentTop="true"--><!--android:layout_alignParentStart="true" />-->
+
+    <!--<TextView--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:textAppearance="?android:attr/textAppearanceMedium"--><!--android:text="Sample text"--><!--android:id="@+id/textView_item" />-->
+
+    <!--</RelativeLayout>-->

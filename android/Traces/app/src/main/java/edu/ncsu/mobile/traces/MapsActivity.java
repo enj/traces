@@ -19,6 +19,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -61,7 +62,7 @@ import static edu.ncsu.mobile.traces.R.id;
 import static edu.ncsu.mobile.traces.R.layout;
 
 
-public class MapsActivity extends FragmentActivity implements LocationListener,GoogleMap.OnMapLongClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+public class MapsActivity extends FragmentActivity implements LocationListener, GoogleMap.OnMapLongClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
     private GoogleApiClient googleAPI;
     private SearchView search;
@@ -297,7 +298,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                 public void run() {
                     try {
 
-                        customMarkersArray.add(new CustomMarker(userName,tweetText,profileImageUrl,userPos,retweetCount,favCount));
+                        customMarkersArray.add(new CustomMarker(userName, tweetText, profileImageUrl, userPos, retweetCount, favCount));
                     } catch (Exception e) {
                         Log.e(LOG_APPTAG, "Error adding bitmap marker.", e);
                     }
@@ -309,33 +310,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         //mDrawerLayout.setDrawerShadow(drawer_shadow, GravityCompat.START);
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, mDrawerStrings));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-
-        //this.getActionBar().setDisplayHomeAsUpEnabled(true);
-        //this.getActionBar().setHomeButtonEnabled(true);
-
-        //final ActionBar actionBar = this.getActionBar();
 
 
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this,                  /* host Activity */
-                mDrawerLayout,         /* DrawerLayout object */
-                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
-                R.string.drawer_open,  /* "open drawer" description for accessibility */  //WTF
-                R.string.drawer_close /* "close drawer" description for accessibility */  //WTF
-        ) {
-            public void onDrawerClosed(View view) {
-                //actionBar.setTitle(listTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
+        final CustomAdapter adapter = new CustomAdapter(getApplicationContext(), customMarkersArray);
+        mDrawerList.setAdapter(adapter);
 
-            public void onDrawerOpened(View drawerView) {
-                //actionBar.setTitle(mDrawerTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+//        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         plotMarkers(customMarkersArray);
         edu.ncsu.mobile.traces.Location search_loc = result.getSearchLocation().getLocation();
@@ -343,10 +323,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     }
 
     private void plotMarkers(ArrayList<CustomMarker> customMarkersArray) {
-        if(customMarkersArray.size() > 0)
-        {
-            for (CustomMarker myMarker : customMarkersArray)
-            {
+        if (customMarkersArray.size() > 0) {
+            for (CustomMarker myMarker : customMarkersArray) {
                 Bitmap bmImg = null;
                 try {
                     bmImg = Ion.with(getApplicationContext())
@@ -360,17 +338,15 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
                 int ColorIndicatorValue;
                 //ColorIndicatorValue Should vary based on retweet Count/Our Custom defined Formula
-                if(myMarker.getRetweetCount() > 5){
+                if (myMarker.getRetweetCount() > 5) {
                     ColorIndicatorValue = Color.RED;
-                }
-                else if(myMarker.getRetweetCount() >=2 && myMarker.getRetweetCount() <= 5){
+                } else if (myMarker.getRetweetCount() >= 2 && myMarker.getRetweetCount() <= 5) {
                     ColorIndicatorValue = Color.YELLOW;
-                }
-                else{
+                } else {
                     ColorIndicatorValue = Color.GREEN;
                 }
 
-                Bitmap mapMarkerImg = getCircleCroppedBitmap(bmImg,ColorIndicatorValue);
+                Bitmap mapMarkerImg = getCircleCroppedBitmap(bmImg, ColorIndicatorValue);
                 // Create user marker with custom icon and other options
                 MarkerOptions markerOption = new MarkerOptions()
                         .icon(BitmapDescriptorFactory.fromBitmap(mapMarkerImg))
@@ -386,7 +362,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     }
 
 
-    public boolean bounceMarker(final Marker marker){
+    public boolean bounceMarker(final Marker marker) {
 
         //Make the marker bounce
         final Handler handler = new Handler();
@@ -423,8 +399,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     }
 
 
-
-    private Bitmap getCircleCroppedBitmap(Bitmap bitmap,int colorIndicator) {
+    public Bitmap getCircleCroppedBitmap(Bitmap bitmap, int colorIndicator) {
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 
@@ -447,12 +422,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 //        return Bitmap.createScaledBitmap(output, 120, 120, false);
         //Image is 73x73 so don't want to resize since it looks like crap
 
-        Bitmap borderedOutput = getColorBorderedBitmapVersion(output,colorIndicator);
+        Bitmap borderedOutput = getColorBorderedBitmapVersion(output, colorIndicator);
 
         return Bitmap.createScaledBitmap(borderedOutput, 100, 100, false);
     }
 
-    private Bitmap getColorBorderedBitmapVersion(Bitmap bitmap,int color) {
+    private Bitmap getColorBorderedBitmapVersion(Bitmap bitmap, int color) {
 
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
@@ -563,7 +538,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                 mFromDateEditText.setText(mDateFormatter.format(newDate.getTime()));
             }
 
-        },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+        }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
 
         mUntilDatePickerDialog = new DatePickerDialog(this, new OnDateSetListener() {
 
@@ -573,45 +548,41 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                 mUntilDateEditText.setText(mDateFormatter.format(newDate.getTime()));
             }
 
-        },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+        }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
     }
 
     @Override
     public void onClick(View view) {
-        if(view == mFromDateEditText) {
+        if (view == mFromDateEditText) {
             mFromDatePickerDialog.show();
-        } else if(view == mUntilDateEditText) {
+        } else if (view == mUntilDateEditText) {
             mUntilDatePickerDialog.show();
         }
     }
 
-    public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter
-    {
-        public MarkerInfoWindowAdapter()
-        {
+    public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+        public MarkerInfoWindowAdapter() {
         }
 
         @Override
-        public View getInfoWindow(Marker marker)
-        {
+        public View getInfoWindow(Marker marker) {
             return null;
         }
 
         @Override
-        public View getInfoContents(Marker marker)
-        {
+        public View getInfoContents(Marker marker) {
             bounceMarker(marker);
 
             // * Felt it'd be cool if we Auto-center Marker position to center of the map screen
-            int zoom = (int)mMap.getCameraPosition().zoom;
-            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(new LatLng(marker.getPosition().latitude + (double)90/Math.pow(2, zoom), marker.getPosition().longitude), zoom);
+            int zoom = (int) mMap.getCameraPosition().zoom;
+            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(new LatLng(marker.getPosition().latitude + (double) 90 / Math.pow(2, zoom), marker.getPosition().longitude), zoom);
             mMap.animateCamera(cu);
 
-            View v  = getLayoutInflater().inflate(layout.info_window, null);
+            View v = getLayoutInflater().inflate(layout.info_window, null);
             CustomMarker myMarker = mMarkersHashMap.get(marker);
             ImageView markerIcon = (ImageView) v.findViewById(id.popUpImageView);
-            TextView markerTweet = (TextView)v.findViewById(id.popUpTweetContent);
-            TextView markerTitle = (TextView)v.findViewById(id.popUpTitle);
+            TextView markerTweet = (TextView) v.findViewById(id.popUpTweetContent);
+            TextView markerTitle = (TextView) v.findViewById(id.popUpTitle);
 
 //            TextView markerFavoriteCount = (TextView)v.findViewById(id.textFavorite);
             Bitmap bmImg = null;
@@ -624,7 +595,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                 e.printStackTrace();
             }
             int colorValue = Color.LTGRAY;
-            Bitmap mapMarkerImg = getCircleCroppedBitmap(bmImg,colorValue);
+            Bitmap mapMarkerImg = getCircleCroppedBitmap(bmImg, colorValue);
             markerIcon.setImageBitmap(mapMarkerImg);
             markerTitle.setText(myMarker.getmUserName());
             markerTweet.setText(myMarker.getmTweetText());

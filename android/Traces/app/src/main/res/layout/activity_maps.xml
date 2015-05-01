@@ -17,15 +17,17 @@
          The drawer is given a fixed width in dp and extends the full height of
          the container. A solid background is used for contrast
          with the content view. -->
+
     <ListView
         android:id="@+id/left_drawer"
-        android:layout_width="240dp"
+        android:layout_width="256dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:background="#111"/>
+        android:dividerHeight="0.1dp"
+        android:divider="@android:color/holo_blue_light"
+        android:background="@color/material_blue_grey_950"/>
+
+
 <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:sothree="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
