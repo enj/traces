@@ -239,7 +239,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
     // If original is true then gets the full size image URL which can be very large
     private String betterImageURL(String url, boolean original) {
-        int s = url.lastIndexOf("_normal.");
+        int s = url.lastIndexOf("_normal");
         return url.substring(0, s) + (original ? "" : "_bigger") + url.substring(s + 7);
     }
 
