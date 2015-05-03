@@ -49,6 +49,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.koushikdutta.ion.Ion;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -385,7 +386,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         }
     }
 
-
     public boolean bounceMarker(final Marker marker){
 
         //Make the marker bounce
@@ -421,8 +421,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         //return false; //have not consumed the event
         return true; //have consumed the event
     }
-
-
 
     private Bitmap getCircleCroppedBitmap(Bitmap bitmap,int colorIndicator) {
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
@@ -665,4 +663,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         //getActionBar().setTitle(mTitle);
     }
 
+    @Override
+    public void onBackPressed() {
+
+        if (mSlidingPanelLayout.getPanelState() == PanelState.EXPANDED) {
+            mSlidingPanelLayout.setPanelState(PanelState.COLLAPSED);
+        } else {
+            super.onBackPressed();
+        }
+
+    }
 }

@@ -1,3 +1,7 @@
 *config.json
 .idea/
 
+
+android/Traces/Traces.iml
+
+android/Traces/app/app.iml
