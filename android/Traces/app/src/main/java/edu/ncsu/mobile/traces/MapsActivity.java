@@ -17,12 +17,18 @@ import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.EditText;
@@ -54,6 +60,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
@@ -87,13 +94,19 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
     // Drawer layout
     private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
+    //private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
-    private String[] mDrawerStrings;
+    //private String[] mDrawerStrings;
 
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private ArrayList<Intel> mTweetIntel;
+
+    // RecyclerView
+    private List<FeedItem> feedItemList = new ArrayList<FeedItem>();
+    private RecyclerView mRecyclerView;
+    private RecyclerViewAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -265,7 +278,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mTweetIntel = new ArrayList<Intel>();//String[result.getIntel().size()];
-        mDrawerStrings = new String[result.getIntel().size()];
+        //mDrawerStrings = new String[result.getIntel().size()];
         final String listTitle = result.getSearchLocation().getAddress();
         //mDrawerTitle = mTweetIntel.toArray();
         int i = 0;
@@ -273,17 +286,24 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         // Initialize the HashMap for Markers and MyMarker object
         mMarkersHashMap = new HashMap<>();
         customMarkersArray = new ArrayList<>();
+        FeedItem mFeeditem = new FeedItem();
         for (Intel tweet : result.getIntel()) {
             User user = tweet.getUser();
+            mFeeditem.setUserName(user.getName());
             final String userName = user.getName();
+            mFeeditem.setThumbnail(user.getProfileImageUrlHttps());
             final String profileImageUrl = betterImageURL(user.getProfileImageUrlHttps(), false);
+            mFeeditem.setTweet(tweet.getText());
             final String tweetText = tweet.getText();
+            mFeeditem.setRetweet(tweet.getRetweetCount().toString());
             final long retweetCount = tweet.getRetweetCount();
+            mFeeditem.setFavs(tweet.getFavoriteCount().toString());
             final long favCount = tweet.getFavoriteCount();
             //final String profileLocation = user.getProfileLocation();
             final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
             mTweetIntel.add(tweet);
-            mDrawerStrings[i++] = tweet.getUser().getName();
+            //mDrawerStrings[i++] = tweet.getUser().getName();
+            feedItemList.add(mFeeditem);
 
             final LatLng userPos = new LatLng(
                     loc.getLat(),
@@ -305,12 +325,15 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
             });
         }
 
-        mTitle = mDrawerTitle = getTitle();
+        //mTitle = mDrawerTitle = getTitle();
         //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
         //mDrawerLayout.setDrawerShadow(drawer_shadow, GravityCompat.START);
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, mDrawerStrings));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        //mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        mRecyclerView = (RecyclerView) findViewById(R.id.left_drawer);
+        mAdapter = new RecyclerViewAdapter(feedItemList);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
 
         //this.getActionBar().setDisplayHomeAsUpEnabled(true);
         //this.getActionBar().setHomeButtonEnabled(true);
@@ -335,7 +358,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        //mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         plotMarkers(customMarkersArray);
         edu.ncsu.mobile.traces.Location search_loc = result.getSearchLocation().getLocation();
