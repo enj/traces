@@ -30,6 +30,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold" />
 
+
     </LinearLayout>
 
     <TextView
@@ -40,6 +41,53 @@
         android:layout_marginLeft="5dp"
         android:text="Sample Tweet"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/img_Retweet"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:src="@mipmap/traces_retweeticon" />
+
+        <TextView
+            android:id="@+id/textView_RtCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="3dp"
+            android:text="Retweet Count" />
+
+
+        <ImageView
+            android:id="@+id/img_Favorite"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:src="@mipmap/traces_favorite" />
+
+        <TextView
+            android:id="@+id/textView_FavoriteCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="3dp"
+            android:text="Favorite Count" />
+
+
+
+
+    </LinearLayout>
+
+
+
 
 </LinearLayout>
 

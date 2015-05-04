@@ -68,8 +68,10 @@ public class CustomAdapter extends BaseAdapter {
             final TextView textView_UserName = (TextView) view.findViewById(R.id.listView_UserTitle);
             final TextView textView_TweetContent = (TextView) view.findViewById(R.id.listView_tweet);
             final ImageView  imageView_Profile = (ImageView) view.findViewById(R.id.listView_profileImage);
+            final TextView textView_RtCount = (TextView)view.findViewById(R.id.textView_RtCount);
+            final TextView textView_FavoriteCount = (TextView)view.findViewById(R.id.textView_FavoriteCount);
 
-            viewHolder = new ViewHolder(textView_UserName, imageView_Profile,textView_TweetContent);
+            viewHolder = new ViewHolder(textView_UserName, imageView_Profile,textView_TweetContent,textView_RtCount,textView_FavoriteCount);
             view.setTag(viewHolder);
 
 
@@ -98,6 +100,9 @@ public class CustomAdapter extends BaseAdapter {
         Bitmap mapMarkerImg = new MapsActivity().getCircleCroppedBitmap(bmImg,colorValue);
         viewHolder.listView_profileImage.setImageBitmap(mapMarkerImg);
 
+        viewHolder.textView_RtCount.setText(arrayList.get(position).getRetweetCount()+"");
+        viewHolder.textView_FavoriteCount.setText(arrayList.get(position).getFavoriteCount()+"");
+
         //3. Return the inflated view here
         return view;
     }
@@ -111,10 +116,16 @@ public class CustomAdapter extends BaseAdapter {
         TextView listView_tweet;
         ImageView listView_profileImage;
 
-        public ViewHolder(TextView tv_UserName, ImageView imageView,TextView tv_TweetContent) {
+        ImageView img_Retweet;
+        TextView textView_RtCount;
+        TextView textView_FavoriteCount;
+
+        public ViewHolder(TextView tv_UserName, ImageView imageView,TextView tv_TweetContent,TextView tv_RtCount,TextView tv_FavCount) {
             this.listView_UserTitle = tv_UserName;
             this.listView_profileImage = imageView;
             this.listView_tweet = tv_TweetContent;
+            this.textView_RtCount = tv_RtCount;
+            this.textView_FavoriteCount=tv_FavCount;
         }
     }
 
