@@ -19,7 +19,10 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
@@ -163,6 +166,34 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                 return false;
             }
         });
+
+        // set listener on keyboard search button for the address field
+        mAddressEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    hideSoftKeyboard();
+                    mSlidingPanelLayout.setPanelState(PanelState.COLLAPSED);
+                    sendSearchValues(findViewById(v.getId()));
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        // set listener on keyboard search button for the radius field
+        mRadiusEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    hideSoftKeyboard();
+                    mSlidingPanelLayout.setPanelState(PanelState.COLLAPSED);
+                    sendSearchValues(findViewById(v.getId()));
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -240,7 +271,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
     // If original is true then gets the full size image URL which can be very large
     private String betterImageURL(String url, boolean original) {
-        int s = url.lastIndexOf("_normal.");
+        int s = url.lastIndexOf("_normal");
         return url.substring(0, s) + (original ? "" : "_bigger") + url.substring(s + 7);
     }
 
@@ -512,6 +543,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
      * @param view the view
      */
     public void sendSearchValues(View view) {
+        this.verifyDates();
+
         addressQuery.s = mAddressEditText.getText().toString();
         addressQuery.rad = mRadiusEditText.getText().toString();
         addressQuery.since = mFromDateEditText.getText().toString();
@@ -631,7 +664,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         }
     }
 
-    /* The click listner for ListView in the navigation drawer */
+    /* The click listener for ListView in the navigation drawer */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -673,4 +706,44 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         }
 
     }
+
+    private void hideSoftKeyboard() {
+        if(getCurrentFocus()!=null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+    }
+
+    private void verifyDates() {
+        String fromDate = mFromDateEditText.getText().toString();
+        String untilDate = mUntilDateEditText.getText().toString();
+
+        boolean fromDateFilled = (fromDate != null) && (!fromDate.isEmpty());
+        boolean untilDateFilled = (untilDate != null) && (!untilDate.isEmpty());
+        boolean bothDatesFilled = fromDateFilled && untilDateFilled;
+
+        if (bothDatesFilled && fromDate.equals(untilDate)) {
+            String[] dateArray = untilDate.split("-");
+            int year = Integer.valueOf(dateArray[0]);
+            int month = Integer.valueOf(dateArray[1]) - 1; //months are 0-based
+            int day = Integer.valueOf(dateArray[2]);
+
+            System.out.println("Year: " + year + " Month: " + month + " Day: " + day);
+
+            Calendar date = Calendar.getInstance();
+            date.set(year, month, day);
+
+            System.out.println("Before: " + date.toString());
+
+            date.add(Calendar.DAY_OF_MONTH, 1);
+
+            System.out.println("After: " + date.toString());
+
+            System.out.println("Formatted: " + mDateFormatter.format(date.getTime()));
+
+            mUntilDateEditText.setText(mDateFormatter.format(date.getTime()));
+        }
+    }
+
+
 }
