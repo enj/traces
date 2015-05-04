@@ -158,6 +158,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                             Toast.LENGTH_SHORT).show();
                 } else {
                     retrieveTweetLocationsAndPlot();
+                    search.setQuery("", false);
+                    search.setIconified(true);
                 }
                 return false;
             }
@@ -285,97 +287,101 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     }
 
     private void plotTweetsOnMap(BaseGet queryGet, BaseAPIQuery queryData) {
-        TracesAPIWrapper resultWrapper;
-        TracesAPI result;
-
         try {
-            resultWrapper = queryGet.execute(queryData).get();
-        } catch (InterruptedException | ExecutionException t) {
-            errorToast("Thread Killed: " + t.getMessage());
-            return;
-        }
+            TracesAPIWrapper resultWrapper;
+            TracesAPI result;
 
-        if (resultWrapper.error != null) {
-            errorToast(resultWrapper.error);
-            return;
-        } else {
-            result = resultWrapper.api;
-        }
+            try {
+                resultWrapper = queryGet.execute(queryData).get();
+            } catch (InterruptedException | ExecutionException t) {
+                errorToast("Thread Killed: " + t.getMessage());
+                return;
+            }
 
-        mMap.clear();
+            if (resultWrapper.error != null) {
+                errorToast(resultWrapper.error);
+                return;
+            } else {
+                result = resultWrapper.api;
+            }
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mTweetIntel = new ArrayList<Intel>();//String[result.getIntel().size()];
-        final String listTitle = result.getSearchLocation().getAddress();
+            mMap.clear();
 
-        // Initialize the HashMap for Markers and MyMarker object
-        mMarkersHashMap = new HashMap<>();
-        customMarkersArray = new ArrayList<>();
-        for (Intel tweet : result.getIntel()) {
-            User user = tweet.getUser();
-            final String userName = user.getName();
-            final String profileImageUrl = betterImageURL(user.getProfileImageUrlHttps(), false);
-            final String tweetText = tweet.getText();
-            final long retweetCount = tweet.getRetweetCount();
-            final String dataUrl = user.getUrl();
-            final long favCount = tweet.getFavoriteCount();
-            //final String profileLocation = user.getProfileLocation();
-            final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
-            mTweetIntel.add(tweet);
+            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            mTweetIntel = new ArrayList<Intel>();//String[result.getIntel().size()];
+            final String listTitle = result.getSearchLocation().getAddress();
 
-            final LatLng userPos = new LatLng(
-                    loc.getLat(),
-                    loc.getLng()
-            );
+            // Initialize the HashMap for Markers and MyMarker object
+            mMarkersHashMap = new HashMap<>();
+            customMarkersArray = new ArrayList<>();
+            for (Intel tweet : result.getIntel()) {
+                User user = tweet.getUser();
+                final String userName = user.getName();
+                final String profileImageUrl = betterImageURL(user.getProfileImageUrlHttps(), false);
+                final String tweetText = tweet.getText();
+                final long retweetCount = tweet.getRetweetCount();
+                final String dataUrl = user.getUrl();
+                final long favCount = tweet.getFavoriteCount();
+                //final String profileLocation = user.getProfileLocation();
+                final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
+                mTweetIntel.add(tweet);
+
+                final LatLng userPos = new LatLng(
+                        loc.getLat(),
+                        loc.getLng()
+                );
 
                  /* Create markers for the tweet data.
                     Must run this on the UI thread since it's a UI operation.
                  */
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    try {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        try {
 
-                        customMarkersArray.add(new CustomMarker(userName, tweetText, profileImageUrl, userPos, retweetCount, favCount,dataUrl));
-                    } catch (Exception e) {
-                        Log.e(LOG_APPTAG, "Error adding bitmap marker.", e);
+                            customMarkersArray.add(new CustomMarker(userName, tweetText, profileImageUrl, userPos, retweetCount, favCount, dataUrl));
+                        } catch (Exception e) {
+                            Log.e(LOG_APPTAG, "Error adding bitmap marker.", e);
+                        }
+                    }
+                });
+            }
+
+            mTitle = mDrawerTitle = getTitle();
+            //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            mDrawerList = (ListView) findViewById(R.id.left_drawer);
+            mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+            //this.getActionBar().setDisplayHomeAsUpEnabled(true);
+            //this.getActionBar().setHomeButtonEnabled(true);
+
+            final CustomAdapter adapter = new CustomAdapter(getApplicationContext(), customMarkersArray);
+            mDrawerList.setAdapter(adapter);
+
+            mDrawerList.bringToFront();
+            mDrawerList.setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView view, int scrollState) {
+                    // TODO Auto-generated method stub
+                    if (scrollState == SCROLL_STATE_IDLE) {
+                        mDrawerList.bringToFront();
+//                    mDrawerLayout.requestLayout();
                     }
                 }
-            });
-        }
 
-        mTitle = mDrawerTitle = getTitle();
-        //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+                @Override
+                public void onScroll(AbsListView view, int firstVisibleItem,
+                                     int visibleItemCount, int totalItemCount) {
+                    // TODO Auto-generated method stub
 
-        //this.getActionBar().setDisplayHomeAsUpEnabled(true);
-        //this.getActionBar().setHomeButtonEnabled(true);
-
-        final CustomAdapter adapter = new CustomAdapter(getApplicationContext(), customMarkersArray);
-        mDrawerList.setAdapter(adapter);
-
-        mDrawerList.bringToFront();
-        mDrawerList.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                // TODO Auto-generated method stub
-                if (scrollState == SCROLL_STATE_IDLE) {
-                    mDrawerList.bringToFront();
-//                    mDrawerLayout.requestLayout();
                 }
-            }
+            });
 
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem,
-                                 int visibleItemCount, int totalItemCount) {
-                // TODO Auto-generated method stub
-
-            }
-        });
-
-        plotMarkers(customMarkersArray);
-        edu.ncsu.mobile.traces.Location search_loc = result.getSearchLocation().getLocation();
-        zoomToNewLocation(new LatLng(search_loc.getLat(), search_loc.getLng()));
+            plotMarkers(customMarkersArray);
+            edu.ncsu.mobile.traces.Location search_loc = result.getSearchLocation().getLocation();
+            zoomToNewLocation(new LatLng(search_loc.getLat(), search_loc.getLng()));
+        } catch (Exception e) {
+            errorToast("Unknown error: " + e.getClass().getSimpleName());
+        }
     }
 
     private void plotMarkers(ArrayList<CustomMarker> customMarkersArray) {
