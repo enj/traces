@@ -68,6 +68,7 @@ import static edu.ncsu.mobile.traces.R.layout;
 public class MapsActivity extends FragmentActivity implements LocationListener,GoogleMap.OnMapLongClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
     private GoogleApiClient googleAPI;
+    private boolean firstRun;
     private SearchView search;
     private RelativeLayout rel_layout;
     private static final String LOG_APPTAG = "Traces App";
@@ -103,6 +104,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        firstRun = true;
         googleAPI = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
@@ -231,6 +233,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     }
 
     private void centerMapToCurrentLocation() {
+
+        // only get location once per app run
+        if (!firstRun)
+            return;
+
         Location myLocation = LocationServices.FusedLocationApi.getLastLocation(googleAPI);
         if (myLocation != null) {
             double latitude = myLocation.getLatitude();
@@ -557,6 +564,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     @Override
     public void onConnected(Bundle bundle) {
         centerMapToCurrentLocation();
+        firstRun = false;
     }
 
     @Override
