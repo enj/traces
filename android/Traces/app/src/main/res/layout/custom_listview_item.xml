@@ -19,7 +19,6 @@
             android:contentDescription="Profile"
             android:scaleType="center" />
 
-
         <TextView
             android:id="@+id/listView_UserTitle"
             android:layout_width="wrap_content"
@@ -77,6 +76,13 @@
             android:layout_gravity="center_vertical"
             android:layout_margin="3dp"
             android:text="Favorite Count" />
-
     </LinearLayout>
+
+    <WebView
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:id="@+id/webView_TweetContent">
+        </WebView>
+
+
 </LinearLayout>
