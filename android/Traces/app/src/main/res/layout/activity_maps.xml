@@ -1,5 +1,4 @@
-<android.support.v4.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -23,163 +22,178 @@
         android:layout_width="256dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:dividerHeight="0.01dp"
+        android:choiceMode="singleChoice"
+        android:background="#212121"
         android:divider="@android:color/darker_gray"
-        android:background="@color/material_blue_grey_950"/>
+        android:dividerHeight="0.01dp" />
 
 
-<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:sothree="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:id="@+id/sliding_layout"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:gravity="bottom"
-sothree:umanoDragView="@+id/dragView"
-sothree:umanoFadeColor="#ffffff"
-sothree:umanoOverlay="true"
-sothree:umanoPanelHeight="20dp"
-sothree:umanoShadowHeight="0dp">
-
-<!-- Map Layout -->
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rl"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:sothree="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="edu.ncsu.mobile.traces.MapsActivity"
-        tools:layout="@layout/activity_main" />
-    --tools:layout="@layout/activity_maps" />
+        android:gravity="bottom"
+        sothree:umanoDragView="@+id/dragView"
+        sothree:umanoFadeColor="#0288D1"
+        sothree:umanoOverlay="true"
+        sothree:umanoPanelHeight="20dp"
+        sothree:umanoShadowHeight="0dp">
 
-</RelativeLayout>
+        <!-- Map Layout -->
 
-<!-- Sliding Drawer Layout -->
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/rl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    tools:context=".GridLayoutActivity">
+            <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="edu.ncsu.mobile.traces.MapsActivity"
+                tools:layout="@layout/activity_main" />
+            --tools:layout="@layout/activity_maps" />
 
-    <GridLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:columnCount="2"
-        android:rowCount="6"
-        android:orientation="horizontal">
+        </RelativeLayout>
 
-        <!-- Row 1 -->
-        <TextView
-            android:id="@+id/advancedSearchLabel"
-            android:layout_columnSpan="2"
-            android:layout_row="0"
-            android:paddingTop="10dp"
-            android:layout_gravity="center"
-            android:text="Advanced Search"
-            android:textSize="20dp" />
+        <!-- Sliding Drawer Layout -->
 
-        <!-- Row 2 -->
-        <TextView
-            android:id="@+id/addressLabel"
-            android:layout_column="0"
-            android:layout_row="1"
-            android:paddingTop="10dp"
-            android:text="Address"
-            android:textSize="15dp" />
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            tools:context=".GridLayoutActivity">
 
-        <EditText
-            android:id="@+id/addressText"
-            android:layout_column="1"
-            android:layout_marginLeft="10dp"
-            android:layout_row="1"
-            android:paddingTop="10dp"
-            android:hint="Enter Address"
-            android:textSize="15dp"
-            android:visibility="visible" />
+            <GridLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:columnCount="2"
+                android:orientation="horizontal"
+                android:rowCount="6">
 
-        <!-- Row 3 -->
-        <TextView
-            android:id="@+id/fromDateLabel"
-            android:layout_column="0"
-            android:layout_row="2"
-            android:paddingTop="10dp"
-            android:text="From Date"
-            android:textSize="15dp" />
+                <!-- Row 1 -->
+                <TextView
+                    android:id="@+id/advancedSearchLabel"
+                    android:layout_columnSpan="2"
+                    android:layout_gravity="center"
+                    android:layout_row="0"
+                    android:paddingTop="10dp"
+                    android:textStyle="bold"
+                    android:textColor="#ffffff"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                    android:text="Advanced Search"
+                    android:textSize="20dp" />
 
-        <EditText
-            android:id="@+id/fromDateText"
-            android:layout_column="1"
-            android:layout_marginLeft="10dp"
-            android:layout_row="2"
-            android:paddingTop="10dp"
-            android:hint="Enter Date"
-            android:textSize="15dp"
-            android:visibility="visible"
-            android:focusableInTouchMode="false"/>
+                <!-- Row 2 -->
+                <TextView
+                    android:id="@+id/addressLabel"
+                    android:layout_column="0"
+                    android:layout_row="1"
+                    android:paddingTop="10dp"
+                    android:textColor="#ffffff"
+                    android:text="Address"
+                    android:textSize="15dp" />
 
-        <!-- Row 4 -->
-        <TextView
-            android:id="@+id/untilDateLabel"
-            android:layout_column="0"
-            android:layout_row="3"
-            android:paddingTop="10dp"
-            android:text="Until Date"
-            android:textSize="15dp" />
+                <EditText
+                    android:id="@+id/addressText"
+                    android:layout_column="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_row="1"
+                    android:hint="Enter Address"
+                    android:textColor="#ffffff"
+                    android:paddingTop="10dp"
+                    android:textCursorDrawable="@null"
+                    android:textSize="15dp"
+                    android:visibility="visible" />
 
-        <EditText
-            android:id="@+id/untilDateText"
-            android:layout_column="1"
-            android:layout_marginLeft="10dp"
-            android:layout_row="3"
-            android:paddingTop="10dp"
-            android:hint="Enter Date"
-            android:textSize="15dp"
-            android:visibility="visible"
-            android:focusableInTouchMode="false"/>
+                <!-- Row 3 -->
+                <TextView
+                    android:id="@+id/fromDateLabel"
+                    android:layout_column="0"
+                    android:layout_row="2"
+                    android:paddingTop="10dp"
+                    android:text="From Date"
+                    android:textColor="#ffffff"
+                    android:textSize="15dp" />
 
-        <!-- Row 5 -->
-        <TextView
-            android:id="@+id/radiusLabel"
-            android:layout_column="0"
-            android:layout_row="4"
-            android:paddingTop="10dp"
-            android:text="Radius"
-            android:textSize="15dp" />
+                <EditText
+                    android:id="@+id/fromDateText"
+                    android:layout_column="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_row="2"
+                    android:focusableInTouchMode="false"
+                    android:hint="Enter Date"
+                    android:textColor="#ffffff"
+                    android:paddingTop="10dp"
+                    android:textSize="15dp"
+                    android:visibility="visible" />
 
-        <EditText
-            android:id="@+id/radiusText"
-            android:layout_column="1"
-            android:layout_marginLeft="10dp"
-            android:layout_row="4"
-            android:paddingTop="10dp"
-            android:hint="Enter Radius"
-            android:textSize="15dp"
-            android:visibility="visible" />
+                <!-- Row 4 -->
+                <TextView
+                    android:id="@+id/untilDateLabel"
+                    android:layout_column="0"
+                    android:layout_row="3"
+                    android:paddingTop="10dp"
+                    android:text="Until Date"
+                    android:textColor="#ffffff"
+                    android:textSize="15dp" />
 
-        <!-- Row 6 -->
-        <Button
-            android:id="@+id/advSearchButton"
-            android:layout_columnSpan="2"
-            android:layout_row="5"
-            android:layout_gravity="center"
-            android:text="Search"
-            android:onClick="sendSearchValues"/>
+                <EditText
+                    android:id="@+id/untilDateText"
+                    android:layout_column="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_row="3"
+                    android:focusableInTouchMode="false"
+                    android:hint="Enter Date"
+                    android:textColor="#ffffff"
+                    android:paddingTop="10dp"
+                    android:textSize="15dp"
+                    android:visibility="visible" />
+
+                <!-- Row 5 -->
+                <TextView
+                    android:id="@+id/radiusLabel"
+                    android:layout_column="0"
+                    android:layout_row="4"
+                    android:paddingTop="10dp"
+                    android:text="Radius"
+                    android:textColor="#ffffff"
+                    android:textSize="15dp" />
+
+                <EditText
+                    android:id="@+id/radiusText"
+                    android:layout_column="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_row="4"
+                    android:hint="Enter Radius"
+                    android:paddingTop="10dp"
+                    android:textSize="15dp"
+                    android:textColor="#ffffff"
+                    android:visibility="visible" />
+
+                <!-- Row 6 -->
+                <ImageButton
+                    android:id="@+id/advSearchButton"
+                    android:src="@mipmap/search_button"
+                    android:layout_columnSpan="2"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="center"
+                    android:layout_row="5"
+                    android:onClick="sendSearchValues"
+                    android:text="Search" />
 
 
-    </GridLayout>
-</RelativeLayout>
+            </GridLayout>
+        </RelativeLayout>
 
-</com.sothree.slidinguppanel.SlidingUpPanelLayout>
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
-    </android.support.v4.widget.DrawerLayout>
+</android.support.v4.widget.DrawerLayout>

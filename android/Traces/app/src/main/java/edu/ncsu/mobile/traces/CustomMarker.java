@@ -13,13 +13,15 @@ public class CustomMarker
     private LatLng mLocation;
     private long retweetCount;
     private long favoriteCount;
+    private String dataUrl;
 
-    public CustomMarker(String userName, String tweetContent, String profileImgUrl,LatLng usrLocation,long rtCount, long favCount)
+    public CustomMarker(String userName, String tweetContent, String profileImgUrl,LatLng usrLocation,long rtCount, long favCount,String mimeUrl)
     {
         this.mUserName = userName;
         this.mLocation = usrLocation;
         this.mTweetText = tweetContent;
         this.mProfileImgHttpUrl = profileImgUrl;
+        this.setDataUrl(mimeUrl);
         this.setRetweetCount(rtCount);
         this.setFavoriteCount(favCount);
 
@@ -80,5 +82,13 @@ public class CustomMarker
 
     public void setFavoriteCount(long favoriteCount) {
         this.favoriteCount = favoriteCount;
+    }
+
+    public String getDataUrl() {
+        return dataUrl;
+    }
+
+    public void setDataUrl(String dataUrl) {
+        this.dataUrl = dataUrl;
     }
 }

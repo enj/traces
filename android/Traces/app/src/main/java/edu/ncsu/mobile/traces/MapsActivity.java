@@ -2,6 +2,9 @@ package edu.ncsu.mobile.traces;
 
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -19,8 +22,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -66,6 +72,7 @@ import static edu.ncsu.mobile.traces.R.layout;
 public class MapsActivity extends FragmentActivity implements LocationListener, GoogleMap.OnMapLongClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
     private GoogleApiClient googleAPI;
+    private boolean firstRun;
     private SearchView search;
     private RelativeLayout rel_layout;
     private static final String LOG_APPTAG = "Traces App";
@@ -164,7 +171,40 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 return false;
             }
         });
+
+
+
+        // set listener on keyboard search button for the address field
+        mAddressEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    hideSoftKeyboard();
+                    mSlidingPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                    sendSearchValues(findViewById(v.getId()));
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        // set listener on keyboard search button for the radius field
+        mRadiusEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    hideSoftKeyboard();
+                    mSlidingPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                    sendSearchValues(findViewById(v.getId()));
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
     }
+
 
     @Override
     public void onLocationChanged(Location location) {
@@ -194,6 +234,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                     return true;
                 }
             });
+
+
         } else {
             Toast.makeText(getApplicationContext(), "Unable to create Maps", Toast.LENGTH_SHORT).show();
         }
@@ -201,6 +243,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     private void centerMapToCurrentLocation() {
+
+        // only get location once per app run
+                       if (!firstRun)
+                     return;
+
         Location myLocation = LocationServices.FusedLocationApi.getLastLocation(googleAPI);
         if (myLocation != null) {
             double latitude = myLocation.getLatitude();
@@ -241,8 +288,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     // If original is true then gets the full size image URL which can be very large
     private String betterImageURL(String url, boolean original) {
-        int s = url.lastIndexOf("_normal.");
-        return url.substring(0, s) + (original ? "" : "_bigger") + url.substring(s + 7);
+        int s = url.lastIndexOf("_normal");
+        return (url.substring(0, s) + (original ? "" : "_bigger")) + url.substring(s + 7);
     }
 
     private void plotTweetsOnMap(BaseGet queryGet, BaseAPIQuery queryData) {
@@ -280,8 +327,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             final String profileImageUrl = betterImageURL(user.getProfileImageUrlHttps(), false);
             final String tweetText = tweet.getText();
             final long retweetCount = tweet.getRetweetCount();
+            final String dataUrl = user.getUrl();
             final long favCount = tweet.getFavoriteCount();
-            //final String profileLocation = user.getProfileLocation();
             final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
             mTweetIntel.add(tweet);
 
@@ -297,7 +344,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 public void run() {
                     try {
 
-                        customMarkersArray.add(new CustomMarker(userName, tweetText, profileImageUrl, userPos, retweetCount, favCount));
+                        customMarkersArray.add(new CustomMarker(userName, tweetText, profileImageUrl, userPos, retweetCount, favCount,dataUrl));
                     } catch (Exception e) {
                         Log.e(LOG_APPTAG, "Error adding bitmap marker.", e);
                     }
@@ -313,8 +360,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         final CustomAdapter adapter = new CustomAdapter(getApplicationContext(), customMarkersArray);
         mDrawerList.setAdapter(adapter);
-
-//        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         mDrawerList.bringToFront();
         mDrawerList.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -335,11 +380,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             }
         });
 
-
         plotMarkers(customMarkersArray);
         edu.ncsu.mobile.traces.Location search_loc = result.getSearchLocation().getLocation();
         zoomToNewLocation(new LatLng(search_loc.getLat(), search_loc.getLng()));
     }
+
+
 
     private void plotMarkers(ArrayList<CustomMarker> customMarkersArray) {
         if (customMarkersArray.size() > 0) {
@@ -520,6 +566,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     @Override
     public void onConnected(Bundle bundle) {
         centerMapToCurrentLocation();
+        firstRun = false;
     }
 
     @Override
@@ -621,7 +668,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 //            markerFavoriteCount.setText(""+myMarker.getFavoriteCount());
             return v;
         }
+
+
     }
+
 
     /* The click listner for ListView in the navigation drawer */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -654,5 +704,58 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mTitle = title;
         //getActionBar().setTitle(mTitle);
     }
+
+    @Override
+    public void onBackPressed() {
+
+        if (mSlidingPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+            mSlidingPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+
+
+    private void hideSoftKeyboard() {
+        if(getCurrentFocus()!=null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+    }
+
+    private void verifyDates() {
+        String fromDate = mFromDateEditText.getText().toString();
+        String untilDate = mUntilDateEditText.getText().toString();
+
+        boolean fromDateFilled = (fromDate != null) && (!fromDate.isEmpty());
+        boolean untilDateFilled = (untilDate != null) && (!untilDate.isEmpty());
+        boolean bothDatesFilled = fromDateFilled && untilDateFilled;
+
+        if (bothDatesFilled && fromDate.equals(untilDate)) {
+            String[] dateArray = untilDate.split("-");
+            int year = Integer.valueOf(dateArray[0]);
+            int month = Integer.valueOf(dateArray[1]) - 1; //months are 0-based
+            int day = Integer.valueOf(dateArray[2]);
+
+            System.out.println("Year: " + year + " Month: " + month + " Day: " + day);
+
+                    Calendar date = Calendar.getInstance();
+            date.set(year, month, day);
+
+            System.out.println("Before: " + date.toString());
+
+            date.add(Calendar.DAY_OF_MONTH, 1);
+
+            System.out.println("After: " + date.toString());
+
+            System.out.println("Formatted: " + mDateFormatter.format(date.getTime()));
+
+            mUntilDateEditText.setText(mDateFormatter.format(date.getTime()));
+        }
+    }
+
+
+
 
 }
