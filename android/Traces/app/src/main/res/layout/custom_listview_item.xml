@@ -78,11 +78,11 @@
             android:text="Favorite Count" />
     </LinearLayout>
 
-    <WebView
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:id="@+id/webView_TweetContent">
-        </WebView>
+    <!--<WebView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="150dp"-->
+        <!--android:id="@+id/webView_TweetContent">-->
+        <!--</WebView>-->
 
 
 </LinearLayout>
