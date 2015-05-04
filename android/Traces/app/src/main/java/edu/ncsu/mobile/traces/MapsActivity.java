@@ -175,20 +175,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     hideSoftKeyboard();
-                    mSlidingPanelLayout.setPanelState(PanelState.COLLAPSED);
-                    sendSearchValues(findViewById(v.getId()));
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        // set listener on keyboard search button for the address field
-        mAddressEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    hideSoftKeyboard();
                     mSlidingPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                     sendSearchValues(findViewById(v.getId()));
                     return true;
@@ -320,10 +306,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mTweetIntel = new ArrayList<Intel>();//String[result.getIntel().size()];
-        mDrawerStrings = new String[result.getIntel().size()];
         final String listTitle = result.getSearchLocation().getAddress();
-        //mDrawerTitle = mTweetIntel.toArray();
-        int i = 0;
 
         // Initialize the HashMap for Markers and MyMarker object
         mMarkersHashMap = new HashMap<>();
@@ -334,11 +317,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
             final String profileImageUrl = betterImageURL(user.getProfileImageUrlHttps(), false);
             final String tweetText = tweet.getText();
             final long retweetCount = tweet.getRetweetCount();
+            final String dataUrl = user.getUrl();
             final long favCount = tweet.getFavoriteCount();
             //final String profileLocation = user.getProfileLocation();
             final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
             mTweetIntel.add(tweet);
-            mDrawerStrings[i++] = tweet.getUser().getName();
 
             final LatLng userPos = new LatLng(
                     loc.getLat(),
@@ -363,8 +346,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         mTitle = mDrawerTitle = getTitle();
         //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        //mDrawerLayout.setDrawerShadow(drawer_shadow, GravityCompat.START);
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, mDrawerStrings));
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         //this.getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -417,7 +398,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
                 //ColorIndicatorValue Should vary based on retweet Count/Our Custom defined Formula
                 if (myMarker.getRetweetCount() > 5) {
                     ColorIndicatorValue = Color.RED;
-                } else if (myMarker.getRetweetCount() >= 2 && myMarker.getRetweetCount() <= 5) {
+                } else if (myMarker.getRetweetCount() >= 1 && myMarker.getRetweetCount() <= 5) {
                     ColorIndicatorValue = Color.YELLOW;
                 } else {
                     ColorIndicatorValue = Color.GREEN;
@@ -477,12 +458,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
 
 
-    private Bitmap getCircleCroppedBitmap(Bitmap bitmap,int colorIndicator) {
+    public Bitmap getCircleCroppedBitmap(Bitmap bitmap,int colorIndicator) {
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 
         Canvas canvas = new Canvas(output);
-
         final int color = 0xff424242;
         final Paint paint = new Paint();
         final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
@@ -741,8 +721,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     }
 
     private void verifyDates() {
-        String fromDate = mFromDateEditText.getText().toString();
-        String untilDate = mUntilDateEditText.getText().toString();
+        String fromDate = mFromDateEditText.getText().toString().trim();
+        String untilDate = mUntilDateEditText.getText().toString().trim();
 
         boolean fromDateFilled = (fromDate != null) && (!fromDate.isEmpty());
         boolean untilDateFilled = (untilDate != null) && (!untilDate.isEmpty());
