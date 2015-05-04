@@ -1,0 +1,12 @@
+[submodule "appengine/internal/github.com/enj/golang-geo"]
+	path = appengine/internal/github.com/enj/golang-geo
+	url = https://github.com/enj/golang-geo.git
+[submodule "appengine/internal/github.com/ChimeraCoder/tokenbucket"]
+	path = appengine/internal/github.com/ChimeraCoder/tokenbucket
+	url = https://github.com/ChimeraCoder/tokenbucket.git
+[submodule "appengine/internal/github.com/ant0ine/go-json-rest"]
+	path = appengine/internal/github.com/ant0ine/go-json-rest
+	url = https://github.com/ant0ine/go-json-rest.git
+[submodule "appengine/internal/github.com/enj/anaconda"]
+	path = appengine/internal/github.com/enj/anaconda
+	url = https://github.com/enj/anaconda.git

@@ -2,9 +2,6 @@ package edu.ncsu.mobile.traces;
 
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,7 +20,6 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -69,7 +65,7 @@ import static edu.ncsu.mobile.traces.R.id;
 import static edu.ncsu.mobile.traces.R.layout;
 
 
-public class MapsActivity extends FragmentActivity implements LocationListener, GoogleMap.OnMapLongClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+public class MapsActivity extends FragmentActivity implements LocationListener,GoogleMap.OnMapLongClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
     private GoogleApiClient googleAPI;
     private boolean firstRun;
@@ -108,6 +104,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        firstRun = true;
         googleAPI = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
@@ -172,7 +169,19 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             }
         });
 
-
+        // set listener on keyboard search button for the address field
+        mAddressEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    hideSoftKeyboard();
+                    mSlidingPanelLayout.setPanelState(PanelState.COLLAPSED);
+                    sendSearchValues(findViewById(v.getId()));
+                    return true;
+                }
+                return false;
+            }
+        });
 
         // set listener on keyboard search button for the address field
         mAddressEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -188,7 +197,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             }
         });
 
-        // set listener on keyboard search button for the radius field
+        // set listener on keyboard radius button for the radius field
         mRadiusEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -204,7 +213,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
 
     }
-
 
     @Override
     public void onLocationChanged(Location location) {
@@ -234,8 +242,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                     return true;
                 }
             });
-
-
         } else {
             Toast.makeText(getApplicationContext(), "Unable to create Maps", Toast.LENGTH_SHORT).show();
         }
@@ -314,6 +320,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mTweetIntel = new ArrayList<Intel>();//String[result.getIntel().size()];
+        mDrawerStrings = new String[result.getIntel().size()];
         final String listTitle = result.getSearchLocation().getAddress();
         //mDrawerTitle = mTweetIntel.toArray();
         int i = 0;
@@ -327,10 +334,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             final String profileImageUrl = betterImageURL(user.getProfileImageUrlHttps(), false);
             final String tweetText = tweet.getText();
             final long retweetCount = tweet.getRetweetCount();
-            final String dataUrl = user.getUrl();
             final long favCount = tweet.getFavoriteCount();
+            //final String profileLocation = user.getProfileLocation();
             final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
             mTweetIntel.add(tweet);
+            mDrawerStrings[i++] = tweet.getUser().getName();
 
             final LatLng userPos = new LatLng(
                     loc.getLat(),
@@ -356,7 +364,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         //mDrawerLayout.setDrawerShadow(drawer_shadow, GravityCompat.START);
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, mDrawerStrings));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
+        //this.getActionBar().setDisplayHomeAsUpEnabled(true);
+        //this.getActionBar().setHomeButtonEnabled(true);
 
         final CustomAdapter adapter = new CustomAdapter(getApplicationContext(), customMarkersArray);
         mDrawerList.setAdapter(adapter);
@@ -385,11 +397,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         zoomToNewLocation(new LatLng(search_loc.getLat(), search_loc.getLng()));
     }
 
-
-
     private void plotMarkers(ArrayList<CustomMarker> customMarkersArray) {
-        if (customMarkersArray.size() > 0) {
-            for (CustomMarker myMarker : customMarkersArray) {
+        if(customMarkersArray.size() > 0)
+        {
+            for (CustomMarker myMarker : customMarkersArray)
+            {
                 Bitmap bmImg = null;
                 try {
                     bmImg = Ion.with(getApplicationContext())
@@ -427,7 +439,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
 
-    public boolean bounceMarker(final Marker marker) {
+    public boolean bounceMarker(final Marker marker){
 
         //Make the marker bounce
         final Handler handler = new Handler();
@@ -464,7 +476,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
 
-    public Bitmap getCircleCroppedBitmap(Bitmap bitmap, int colorIndicator) {
+
+    private Bitmap getCircleCroppedBitmap(Bitmap bitmap,int colorIndicator) {
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 
@@ -492,7 +505,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         return Bitmap.createScaledBitmap(borderedOutput, 100, 100, false);
     }
 
-    private Bitmap getColorBorderedBitmapVersion(Bitmap bitmap, int color) {
+    private Bitmap getColorBorderedBitmapVersion(Bitmap bitmap,int color) {
 
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
@@ -554,6 +567,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
      * @param view the view
      */
     public void sendSearchValues(View view) {
+        this.verifyDates();
+
         addressQuery.s = mAddressEditText.getText().toString();
         addressQuery.rad = mRadiusEditText.getText().toString();
         addressQuery.since = mFromDateEditText.getText().toString();
@@ -604,7 +619,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 mFromDateEditText.setText(mDateFormatter.format(newDate.getTime()));
             }
 
-        }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+        },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
 
         mUntilDatePickerDialog = new DatePickerDialog(this, new OnDateSetListener() {
 
@@ -614,41 +629,45 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 mUntilDateEditText.setText(mDateFormatter.format(newDate.getTime()));
             }
 
-        }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+        },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
     }
 
     @Override
     public void onClick(View view) {
-        if (view == mFromDateEditText) {
+        if(view == mFromDateEditText) {
             mFromDatePickerDialog.show();
-        } else if (view == mUntilDateEditText) {
+        } else if(view == mUntilDateEditText) {
             mUntilDatePickerDialog.show();
         }
     }
 
-    public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
-        public MarkerInfoWindowAdapter() {
+    public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter
+    {
+        public MarkerInfoWindowAdapter()
+        {
         }
 
         @Override
-        public View getInfoWindow(Marker marker) {
+        public View getInfoWindow(Marker marker)
+        {
             return null;
         }
 
         @Override
-        public View getInfoContents(Marker marker) {
+        public View getInfoContents(Marker marker)
+        {
             bounceMarker(marker);
 
             // * Felt it'd be cool if we Auto-center Marker position to center of the map screen
-            int zoom = (int) mMap.getCameraPosition().zoom;
-            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(new LatLng(marker.getPosition().latitude + (double) 90 / Math.pow(2, zoom), marker.getPosition().longitude), zoom);
+            int zoom = (int)mMap.getCameraPosition().zoom;
+            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(new LatLng(marker.getPosition().latitude + (double)90/Math.pow(2, zoom), marker.getPosition().longitude), zoom);
             mMap.animateCamera(cu);
 
-            View v = getLayoutInflater().inflate(layout.info_window, null);
+            View v  = getLayoutInflater().inflate(layout.info_window, null);
             CustomMarker myMarker = mMarkersHashMap.get(marker);
             ImageView markerIcon = (ImageView) v.findViewById(id.popUpImageView);
-            TextView markerTweet = (TextView) v.findViewById(id.popUpTweetContent);
-            TextView markerTitle = (TextView) v.findViewById(id.popUpTitle);
+            TextView markerTweet = (TextView)v.findViewById(id.popUpTweetContent);
+            TextView markerTitle = (TextView)v.findViewById(id.popUpTitle);
 
 //            TextView markerFavoriteCount = (TextView)v.findViewById(id.textFavorite);
             Bitmap bmImg = null;
@@ -661,17 +680,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 e.printStackTrace();
             }
             int colorValue = Color.LTGRAY;
-            Bitmap mapMarkerImg = getCircleCroppedBitmap(bmImg, colorValue);
+            Bitmap mapMarkerImg = getCircleCroppedBitmap(bmImg,colorValue);
             markerIcon.setImageBitmap(mapMarkerImg);
             markerTitle.setText(myMarker.getmUserName());
             markerTweet.setText(myMarker.getmTweetText());
 //            markerFavoriteCount.setText(""+myMarker.getFavoriteCount());
             return v;
         }
-
-
     }
-
 
     /* The click listner for ListView in the navigation drawer */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {

@@ -2,6 +2,7 @@ package traces
 
 import (
 	"log"
+	"strings"
 	"net/http"
 	"encoding/json"
 	"internal/github.com/enj/anaconda"
@@ -21,6 +22,7 @@ const (
 	maxLat = 90.0 // maximum valid latitude
 	maxLng = 180.0 // maximum valid longitude
 	kmToMi = 0.621371 // convert kilometers to miles
+	googleServerKeyFile = "google_server_key.txt" // for use with Google's geocoding API
 )
 
 func init() {
@@ -31,6 +33,13 @@ func init() {
 		AccessToken string
 		AccessTokenSecret string
 	}
+
+	googleRawKey, err := ioutil.ReadFile(googleServerKeyFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	googleGeo.Key = strings.TrimSpace(string(googleRawKey))
 
 	configFile, err := ioutil.ReadFile(twitterConfigFile)
 	if err != nil {
