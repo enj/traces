@@ -30,7 +30,6 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold" />
 
-
     </LinearLayout>
 
     <TextView
@@ -41,8 +40,6 @@
         android:layout_marginLeft="5dp"
         android:text="Sample Tweet"
         android:textAppearance="?android:attr/textAppearanceSmall" />
-
-
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -81,21 +78,5 @@
             android:layout_margin="3dp"
             android:text="Favorite Count" />
 
-
-
-
     </LinearLayout>
-
-
-
-
 </LinearLayout>
-
-
-    <!----><!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"--><!--android:layout_width="match_parent" android:layout_height="match_parent">-->
-
-    <!----><!----><!--<ImageView--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:id="@+id/imageView"--><!--android:layout_alignParentTop="true"--><!--android:layout_alignParentStart="true" />-->
-
-    <!--<TextView--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:textAppearance="?android:attr/textAppearanceMedium"--><!--android:text="Sample text"--><!--android:id="@+id/textView_item" />-->
-
-    <!--</RelativeLayout>-->
