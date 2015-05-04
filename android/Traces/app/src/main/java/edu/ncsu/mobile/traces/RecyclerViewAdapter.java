@@ -9,17 +9,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.koushikdutta.ion.Ion;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
 
     private List<FeedItem> feedItemList;
+    private static final String TAG = "YOUR-TAG-NAME";
 
     public RecyclerViewAdapter(List<FeedItem> feedItemList) {
         //super(feedItemList);
@@ -38,11 +42,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<FeedListRowHolder>
     @Override
     public void onBindViewHolder(FeedListRowHolder feedListRowHolder, int i) {
         FeedItem feedItem = feedItemList.get(i);
-        //feedListRowHolder.thumbnail.getImageBitmap(Html.fromHtml(feedItem.getThumbnail()));
-        feedListRowHolder.userName.setText(Html.fromHtml(feedItem.getUserName()));
-        feedListRowHolder.tweet.setText(Html.fromHtml(feedItem.getTweet()));
-        feedListRowHolder.retweet.setText(Html.fromHtml(feedItem.getRetweet()));
-        feedListRowHolder.favs.setText(Html.fromHtml(feedItem.getFavs()));
+        Bitmap icon = null;
+        try {
+            icon = getImageBitmap(feedItem.getThumbnail());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        feedListRowHolder.thumbnail.setImageBitmap(icon);
+        feedListRowHolder.userName.setText(feedItem.getUserName());
+        feedListRowHolder.tweet.setText(feedItem.getTweet());
+        feedListRowHolder.retweet.setText("RTC: " + feedItem.getRetweet());
+        feedListRowHolder.favs.setText("FAV: " + feedItem.getFavs());
     }
 
     @Override
@@ -51,7 +62,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<FeedListRowHolder>
     }
 
     //Converts image URL into bitmap
-    /* public Bitmap getImageBitmap(String url) {
+    public Bitmap getImageBitmap(String url) {
         Bitmap bm = null;
         try {
             URL aURL = new URL(url);
@@ -66,5 +77,5 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<FeedListRowHolder>
             Log.e(TAG, "Error getting bitmap", e);
         }
         return bm;
-    } */
+    }
 }

@@ -14,7 +14,7 @@ public class FeedListRowHolder extends RecyclerView.ViewHolder{
     public TextView tweet;
     public TextView retweet;
     public TextView favs;
-    private static final String TAG = "YOUR-TAG-NAME";
+
 
     public FeedListRowHolder(View view) {
         super(view);

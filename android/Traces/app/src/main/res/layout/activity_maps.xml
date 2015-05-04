@@ -21,9 +21,10 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/left_drawer"
         android:layout_width="320dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:scrollbars="vertical"
-        android:background="#111"
+        android:fadeScrollbars="true"
+        android:background="#FFFF"
         android:layout_gravity="start" />
 
 <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"

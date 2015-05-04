@@ -13,6 +13,7 @@ import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
@@ -55,6 +56,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.koushikdutta.ion.Ion;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import org.json.JSONException;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -112,7 +115,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        googleAPI = new GoogleApiClient.Builder(this)
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+         googleAPI = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -152,6 +158,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
 
         search.setLayoutParams(params);
         rel_layout.addView(search);
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.left_drawer);
+        mAdapter = new RecyclerViewAdapter(feedItemList);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
 
 
         //***setOnQueryTextListener***
@@ -286,24 +298,27 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         // Initialize the HashMap for Markers and MyMarker object
         mMarkersHashMap = new HashMap<>();
         customMarkersArray = new ArrayList<>();
-        FeedItem mFeeditem = new FeedItem();
+
         for (Intel tweet : result.getIntel()) {
+            FeedItem mFeeditem = new FeedItem();
             User user = tweet.getUser();
+
             mFeeditem.setUserName(user.getName());
-            final String userName = user.getName();
             mFeeditem.setThumbnail(user.getProfileImageUrlHttps());
-            final String profileImageUrl = betterImageURL(user.getProfileImageUrlHttps(), false);
             mFeeditem.setTweet(tweet.getText());
-            final String tweetText = tweet.getText();
             mFeeditem.setRetweet(tweet.getRetweetCount().toString());
-            final long retweetCount = tweet.getRetweetCount();
             mFeeditem.setFavs(tweet.getFavoriteCount().toString());
+            feedItemList.add(mFeeditem);
+
+            final String userName = user.getName();
+            final String profileImageUrl = betterImageURL(user.getProfileImageUrlHttps(), false);
+            final String tweetText = tweet.getText();
+            final long retweetCount = tweet.getRetweetCount();
             final long favCount = tweet.getFavoriteCount();
             //final String profileLocation = user.getProfileLocation();
             final edu.ncsu.mobile.traces.Location loc = tweet.getLocation();
             mTweetIntel.add(tweet);
             //mDrawerStrings[i++] = tweet.getUser().getName();
-            feedItemList.add(mFeeditem);
 
             final LatLng userPos = new LatLng(
                     loc.getLat(),
@@ -326,14 +341,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener,G
         }
 
         //mTitle = mDrawerTitle = getTitle();
-        //mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         //mDrawerLayout.setDrawerShadow(drawer_shadow, GravityCompat.START);
         //mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-        mRecyclerView = (RecyclerView) findViewById(R.id.left_drawer);
-        mAdapter = new RecyclerViewAdapter(feedItemList);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(mAdapter);
 
         //this.getActionBar().setDisplayHomeAsUpEnabled(true);
         //this.getActionBar().setHomeButtonEnabled(true);

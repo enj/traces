@@ -7,46 +7,44 @@
 
     <ImageView
         android:id="@+id/thumbnail"
-        android:layout_width="80dp"
+        android:layout_width="30dp"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:layout_gravity="start"
+        android:layout_gravity="left"
         android:scaleType="fitCenter" />
 
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_margin="8dp"
-        android:maxLines="1" />
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentLeft="true"
+            android:maxLines="1" />
 
-    <TextView
-        android:id="@+id/tweet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_margin="8dp"
-        android:maxLines="3" />
+        <TextView
+            android:id="@+id/tweet"
+            android:layout_below="@id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentLeft="true"
+            android:maxLines="3" />
 
-    <TextView
-        android:id="@+id/retweet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_margin="8dp"
-        android:maxLines="1" />
+        <TextView
+            android:id="@+id/retweet"
+            android:layout_below="@id/tweet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="false"
+            android:maxLines="1" />
 
-    <TextView
-        android:id="@+id/favs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_margin="8dp"
-        android:maxLines="1" />
-
+        <TextView
+            android:id="@+id/favs"
+            android:layout_below="@id/tweet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:maxLines="1" />
 </LinearLayout>
