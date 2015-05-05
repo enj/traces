@@ -8,7 +8,7 @@ Future work: In an ideal world, we would have liked to have been able to allow u
 
 Link to app: http://bit.do/traces
 
-Link to video: TODO
+Link to video: http://youtu.be/796xuZgvIxc
 
 Link to GitHub : https://github.com/enj/traces
 
